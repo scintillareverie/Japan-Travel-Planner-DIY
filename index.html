@@ -33,7 +33,7 @@
 
     .card {
       background: var(--card-bg);
-      padding: 20px;
+      padding: 22px;
       border-radius: 20px;
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
       margin-bottom: 16px;
@@ -43,24 +43,25 @@
       display: inline-block;
       background: var(--accent);
       color: var(--primary);
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       margin-bottom: 10px;
       text-transform: uppercase;
     }
 
-    h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-    p { font-size: 13px; color: var(--text-muted); }
+    h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    p { font-size: 14.5px; color: var(--text-muted); line-height: 1.4; }
 
     input {
       width: 100%;
-      padding: 12px;
+      padding: 13px 14px;
       margin: 8px 0;
       border: 1.5px solid var(--border);
       border-radius: 12px;
-      font-size: 14px;
+      font-size: 15px;
       font-family: inherit;
       outline: none;
       background-color: #ffffff;
@@ -69,11 +70,11 @@
     /* CUSTOM BALANCED DROPDOWN */
     select {
       width: 100%;
-      padding: 12px 40px 12px 16px;
+      padding: 13px 40px 13px 16px;
       margin: 8px 0;
       border: 1.5px solid var(--border);
       border-radius: 12px;
-      font-size: 14px;
+      font-size: 15px;
       font-family: inherit;
       outline: none;
       background-color: #ffffff;
@@ -93,15 +94,15 @@
       background-color: var(--primary);
       color: white;
       border: none;
-      padding: 12px;
+      padding: 13px 14px;
       border-radius: 12px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
     }
 
     .hidden { display: none !important; }
-    .error-msg { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; }
+    .error-msg { color: #ef4444; font-size: 14px; margin-top: 8px; text-align: center; }
 
     /* NAV TABS */
     .nav-tabs {
@@ -109,7 +110,7 @@
       background: #e2e8f0;
       border-radius: 14px;
       padding: 4px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .nav-btn {
@@ -118,7 +119,7 @@
       color: var(--text-muted);
       padding: 10px 4px;
       border-radius: 10px;
-      font-size: 12px;
+      font-size: 13.5px;
       font-weight: 700;
       text-align: center;
     }
@@ -133,26 +134,37 @@
     .activity-card {
       background: #f8fafc;
       border-left: 4px solid var(--primary);
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 10px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
       position: relative;
     }
 
-    .activity-title { font-size: 14px; font-weight: 700; }
-    .activity-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .activity-meta {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .activity-title { font-size: 16px; font-weight: 700; color: var(--text); }
+    .activity-desc { font-size: 13.5px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
     .delete-btn {
       position: absolute;
-      right: 10px;
-      top: 10px;
+      right: 12px;
+      top: 12px;
       background: none;
       color: #ef4444;
-      font-size: 12px;
+      font-size: 14px;
       width: auto;
       padding: 2px 6px;
     }
 
-    /* PHRASE CARDS WITH BIGGER ROMAJI & JAPANESE CHARACTERS */
+    /* PHRASE CARDS WITH BALANCED ROMAJI & JAPANESE CHARACTERS */
     .phrase-card {
       background: #f8fafc;
       padding: 14px 16px;
@@ -173,7 +185,7 @@
       color: #475569; 
       margin-bottom: 2px;
     }
-    .phrase-en { font-size: 13.5px; margin-top: 4px; font-weight: 600; color: var(--text); }
+    .phrase-en { font-size: 14px; margin-top: 4px; font-weight: 600; color: var(--text); }
 
     /* SEASON BUTTONS */
     .season-btn {
@@ -183,7 +195,7 @@
       border: 1px solid var(--border);
       padding: 10px 4px;
       border-radius: 10px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -198,19 +210,19 @@
     .checklist-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       background: #f8fafc;
-      padding: 10px 12px;
-      border-radius: 10px;
-      margin-bottom: 6px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
       border: 1px solid var(--border);
-      font-size: 13px;
+      font-size: 14.5px;
       cursor: pointer;
     }
 
     .checklist-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       accent-color: var(--primary);
       cursor: pointer;
       margin: 0;
@@ -248,10 +260,11 @@
       <!-- TAB 1: DIY ITINERARY BUILDER -->
       <div id="tab-itinerary">
         <h3>📍 My Custom Itinerary</h3>
-        <p style="margin-bottom:12px;">Add your personal schedule below. Saved offline!</p>
+        <p style="margin-bottom:14px;">Add your personal schedule below. Saved offline!</p>
 
         <!-- ADD ACTIVITY FORM -->
-        <div style="background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:16px;">
+        <div style="background:#f1f5f9; padding:14px; border-radius:14px; margin-bottom:18px;">
+          <input type="text" id="act-date" placeholder="Day / Date (e.g. Day 1 - Nov 10)">
           <input type="text" id="act-time" placeholder="Time (e.g. 09:00 AM)">
           <input type="text" id="act-title" placeholder="Activity (e.g. Shibuya Sky)">
           <input type="text" id="act-desc" placeholder="Notes / Train info">
@@ -264,28 +277,28 @@
       <!-- TAB 2: CURRENCY CONVERTER -->
       <div id="tab-converter" class="hidden">
         <h3>💴 Quick Currency Converter</h3>
-        <p style="margin-bottom:12px;">Estimate Yen (JPY) to Indonesian Rupiah (IDR)</p>
+        <p style="margin-bottom:14px;">Estimate Yen (JPY) to Indonesian Rupiah (IDR)</p>
         
-        <label style="font-size:12px; font-weight:700;">Rate (1 JPY in IDR):</label>
+        <label style="font-size:13px; font-weight:700; color:var(--text);">Rate (1 JPY in IDR):</label>
         <input type="number" id="jpy-rate" value="105" oninput="convertCurrency()">
 
-        <label style="font-size:12px; font-weight:700;">Price in Yen (¥):</label>
+        <label style="font-size:13px; font-weight:700; color:var(--text);">Price in Yen (¥):</label>
         <input type="number" id="jpy-input" placeholder="e.g. 1500" oninput="convertCurrency()">
 
-        <div style="background:var(--accent); padding:16px; border-radius:12px; text-align:center; margin-top:10px;">
-          <small style="color:var(--text-muted);">Estimated Total:</small>
-          <h2 id="idr-result" style="color:var(--primary); margin-top:4px;">Rp 0</h2>
+        <div style="background:var(--accent); padding:18px; border-radius:14px; text-align:center; margin-top:12px;">
+          <small style="color:var(--text-muted); font-size:13px; font-weight:600;">Estimated Total:</small>
+          <h2 id="idr-result" style="color:var(--primary); margin-top:4px; font-size:26px;">Rp 0</h2>
         </div>
       </div>
 
       <!-- TAB 3: ESSENTIAL PHRASES -->
       <div id="tab-phrases" class="hidden">
         <h3>🗣️ Emergency Phrasebook</h3>
-        <p style="margin-bottom:10px;">Select a situation category for instant communication.</p>
+        <p style="margin-bottom:12px;">Select a situation category for instant communication.</p>
 
         <!-- CATEGORY DROPDOWN -->
-        <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Select Category:</label>
-        <select id="phrase-category-select" onchange="renderPhraseCategory()" style="margin-bottom:16px;">
+        <label style="font-size:13px; font-weight:700; color:var(--text-muted);">Select Category:</label>
+        <select id="phrase-category-select" onchange="renderPhraseCategory()" style="margin-bottom:18px;">
           <option value="general">🌐 General / Basics</option>
           <option value="transportation">🚃 Transportation & Trains</option>
           <option value="konbini">🏪 Konbini (Convenience Store)</option>
@@ -299,10 +312,10 @@
       <!-- TAB 4: SMART PACKING CHECKLIST -->
       <div id="tab-packing" class="hidden">
         <h3>🧳 Japan Packing Checklist</h3>
-        <p style="margin-bottom:12px;">Select your travel season to customize your list.</p>
+        <p style="margin-bottom:14px;">Select your travel season to customize your list.</p>
 
         <!-- SEASON SELECTOR BUTTONS -->
-        <div style="display:flex; gap:6px; margin-bottom:16px;">
+        <div style="display:flex; gap:6px; margin-bottom:18px;">
           <button class="season-btn" onclick="selectSeason('spring', event)">🌸 Spring</button>
           <button class="season-btn" onclick="selectSeason('summer', event)">☀️ Summer</button>
           <button class="season-btn" onclick="selectSeason('autumn', event)">🍁 Autumn</button>
@@ -311,16 +324,16 @@
 
         <!-- PACKING CONTENT AREA -->
         <div id="packing-content" class="hidden">
-          <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px;">Year-Round Essentials</h4>
+          <h4 style="font-size:14px; color:var(--primary); margin-bottom:10px; font-weight:700;">Year-Round Essentials</h4>
           <div id="essentials-list"></div>
 
-          <h4 style="font-size:13px; color:var(--primary); margin-top:16px; margin-bottom:8px;" id="season-title">Seasonal Items</h4>
+          <h4 style="font-size:14px; color:var(--primary); margin-top:18px; margin-bottom:10px; font-weight:700;" id="season-title">Seasonal Items</h4>
           <div id="seasonal-list"></div>
 
-          <h4 style="font-size:13px; color:var(--primary); margin-top:16px; margin-bottom:8px;">My Personal Items</h4>
-          <div style="display:flex; gap:6px; margin-bottom:12px;">
+          <h4 style="font-size:14px; color:var(--primary); margin-top:18px; margin-bottom:10px; font-weight:700;">My Personal Items</h4>
+          <div style="display:flex; gap:6px; margin-bottom:14px;">
             <input type="text" id="custom-item-input" placeholder="e.g. Camera battery, skincare..." style="margin:0;">
-            <button onclick="addCustomPackingItem()" style="width:auto; padding:10px 16px; white-space:nowrap;">+ Add</button>
+            <button onclick="addCustomPackingItem()" style="width:auto; padding:12px 18px; white-space:nowrap;">+ Add</button>
           </div>
           <div id="custom-packing-list"></div>
         </div>
@@ -495,15 +508,17 @@
 
     function addActivity() {
       const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+      const dateDay = document.getElementById("act-date").value.trim();
       const time = document.getElementById("act-time").value.trim();
       const title = document.getElementById("act-title").value.trim();
       const desc = document.getElementById("act-desc").value.trim();
 
       if (!title) return alert("Please enter an activity title!");
 
-      userActivities.push({ time, title, desc });
+      userActivities.push({ dateDay, time, title, desc });
       localStorage.setItem("diyItinerary_" + activeCode, JSON.stringify(userActivities));
 
+      document.getElementById("act-date").value = "";
       document.getElementById("act-time").value = "";
       document.getElementById("act-title").value = "";
       document.getElementById("act-desc").value = "";
@@ -528,12 +543,16 @@
       }
 
       userActivities.forEach((act, idx) => {
+        const metaParts = [];
+        if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
+        metaParts.push(`⏰ ${act.time || 'Flexible'}`);
+
         list.innerHTML += `
           <div class="activity-card">
             <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
-            <div style="font-size:11px; font-weight:700; color:var(--primary);">⏰ ${act.time || 'Flexible'}</div>
+            <div class="activity-meta">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
             <div class="activity-title">${act.title}</div>
-            <div class="activity-desc">${act.desc}</div>
+            ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
           </div>
         `;
       });
@@ -623,17 +642,17 @@
         const customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
 
         if (customItems.length === 0) {
-          customDiv.innerHTML = "<p style='font-size:12px; color:var(--text-muted); text-align:center;'>No personal items added yet.</p>";
+          customDiv.innerHTML = "<p style='font-size:13.5px; color:var(--text-muted); text-align:center;'>No personal items added yet.</p>";
         } else {
           customDiv.innerHTML = customItems.map(item => {
             const isChecked = savedChecks[item.id] ? "checked" : "";
             return `
               <div class="checklist-item ${isChecked ? 'checked' : ''}" style="justify-content:space-between;">
-                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; margin:0;">
+                <label style="display:flex; align-items:center; gap:12px; flex:1; cursor:pointer; margin:0;">
                   <input type="checkbox" ${isChecked} onchange="toggleCheck('${item.id}', this)">
                   <span>${item.text}</span>
                 </label>
-                <button onclick="deleteCustomPackingItem('${item.id}')" style="background:none; color:#ef4444; width:auto; padding:0 4px; font-size:12px;">✕</button>
+                <button onclick="deleteCustomPackingItem('${item.id}')" style="background:none; color:#ef4444; width:auto; padding:0 4px; font-size:14px;">✕</button>
               </div>
             `;
           }).join('');
