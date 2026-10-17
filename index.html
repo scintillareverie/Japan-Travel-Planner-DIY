@@ -103,33 +103,32 @@
     .hidden { display: none !important; }
     .error-msg { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; }
 
-    /* BALANCED MOBILE TOP NAVIGATION BAR */
+    /* ALL 5 TABS VISIBLE MOBILE NAV BAR */
     .nav-tabs {
       display: flex;
-      gap: 4px;
       background: #e2e8f0;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 4px;
       margin-bottom: 16px;
-      overflow-x: auto;
-      scrollbar-width: none;
     }
-    .nav-tabs::-webkit-scrollbar { display: none; }
 
     .nav-btn {
-      flex: 0 0 auto;
+      flex: 1;
       background: transparent;
       color: var(--text-muted);
-      padding: 7px 10px;
-      border-radius: 9px;
-      font-size: 12px;
+      padding: 7px 2px;
+      border-radius: 10px;
+      font-size: 11px;
       font-weight: 700;
-      white-space: nowrap;
-      display: inline-flex;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 5px; /* Perfect spacing between icon and text */
+      gap: 2px;
     }
+
+    .nav-btn span.tab-icon { font-size: 16px; line-height: 1; }
 
     .nav-btn.active {
       background: var(--card-bg);
@@ -137,7 +136,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    /* DYNAMICALLY COLOR-CODED ITINERARY CARDS */
+    /* ITINERARY CARDS */
     .activity-card {
       background: #f8fafc;
       border-left: 4px solid var(--primary);
@@ -296,13 +295,28 @@
 
     <!-- MAIN DIY APP -->
     <div id="app-content" class="card hidden">
-      <!-- NAVIGATION WITH BALANCED SPACING -->
+      <!-- ALL 5 TABS VISIBLE AT ONCE -->
       <div class="nav-tabs">
-        <button class="nav-btn active" onclick="switchTab('itinerary', event)"><span>🗓️</span> <span>Itinerary</span></button>
-        <button class="nav-btn" onclick="switchTab('expense', event)"><span>💰</span> <span>Expense</span></button>
-        <button class="nav-btn" onclick="switchTab('converter', event)"><span>💴</span> <span>Currency</span></button>
-        <button class="nav-btn" onclick="switchTab('phrases', event)"><span>🗣️</span> <span>Phrases</span></button>
-        <button class="nav-btn" onclick="switchTab('packing', event)"><span>🧳</span> <span>Packing</span></button>
+        <button class="nav-btn active" onclick="switchTab('itinerary', event)">
+          <span class="tab-icon">🗓️</span>
+          <span>Itinerary</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('expense', event)">
+          <span class="tab-icon">💰</span>
+          <span>Expense</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('converter', event)">
+          <span class="tab-icon">💴</span>
+          <span>Currency</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('phrases', event)">
+          <span class="tab-icon">🗣️</span>
+          <span>Phrases</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('packing', event)">
+          <span class="tab-icon">🧳</span>
+          <span>Packing</span>
+        </button>
       </div>
 
       <!-- TAB 1: DIY ITINERARY BUILDER -->
@@ -431,7 +445,7 @@
     let userExpenses = [];
     let currentSeason = null;
 
-    // DAY ACCENT COLOR PALETTE (AUTO-ASSIGNED BY DAY)
+    // 15 DISTINCT ACCENT COLORS (DAY 1 TO DAY 15)
     const DAY_COLORS = [
       { border: '#2563eb', text: '#2563eb' }, // Day 1: Blue
       { border: '#ec4899', text: '#be185d' }, // Day 2: Pink
@@ -439,7 +453,15 @@
       { border: '#10b981', text: '#047857' }, // Day 4: Emerald
       { border: '#f97316', text: '#c2410c' }, // Day 5: Orange
       { border: '#14b8a6', text: '#0f766e' }, // Day 6: Teal
-      { border: '#f43f5e', text: '#be123c' }  // Day 7: Rose
+      { border: '#f43f5e', text: '#be123c' }, // Day 7: Rose
+      { border: '#6366f1', text: '#4338ca' }, // Day 8: Indigo
+      { border: '#d97706', text: '#b45309' }, // Day 9: Amber Gold
+      { border: '#06b6d4', text: '#0e7490' }, // Day 10: Cyan
+      { border: '#7c3aed', text: '#5b21b6' }, // Day 11: Violet
+      { border: '#65a30d', text: '#3f6212' }, // Day 12: Lime
+      { border: '#dc2626', text: '#991b1b' }, // Day 13: Coral Red
+      { border: '#0284c7', text: '#0369a1' }, // Day 14: Sky Blue
+      { border: '#d946ef', text: '#a21caf' }  // Day 15: Fuchsia
     ];
 
     function getDayColor(dayString) {
@@ -480,7 +502,7 @@
         { romaji: "O-kaikei onegai shimasu", jp: "お会計お願いします", en: "Check / Bill, please" }
       ],
       shopping: [
-        { romaji: "Kore wa ikura desu ka?", jp: "粉れはおいくらですか？", en: "How much is this?" },
+        { romaji: "Kore wa ikura desu ka?", jp: "これはおいくらですか？", en: "How much is this?" },
         { romaji: "Shichaku shitemo ii desu ka?", jp: "試着してもいいですか？", en: "Can I try this on?" },
         { romaji: "Atarashii mono wa arimasu ka?", jp: "新しいものはありますか？", en: "Do you have an unopened/new one?" },
         { romaji: "Menzei deki masu ka?", jp: "免税できますか？", en: "Is tax-free available?" },
