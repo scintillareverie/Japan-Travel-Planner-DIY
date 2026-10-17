@@ -67,7 +67,6 @@
       background-color: #ffffff;
     }
 
-    /* CUSTOM BALANCED DROPDOWN */
     select {
       width: 100%;
       padding: 11px 36px 11px 14px;
@@ -104,12 +103,13 @@
     .hidden { display: none !important; }
     .error-msg { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; }
 
-    /* COMPACT 5-TAB NAV BAR FOR MOBILE */
+    /* BALANCED MOBILE TOP NAVIGATION BAR */
     .nav-tabs {
       display: flex;
+      gap: 4px;
       background: #e2e8f0;
       border-radius: 12px;
-      padding: 3px;
+      padding: 4px;
       margin-bottom: 16px;
       overflow-x: auto;
       scrollbar-width: none;
@@ -117,16 +117,18 @@
     .nav-tabs::-webkit-scrollbar { display: none; }
 
     .nav-btn {
-      flex: 1;
-      min-width: 65px;
+      flex: 0 0 auto;
       background: transparent;
       color: var(--text-muted);
-      padding: 8px 2px;
+      padding: 7px 10px;
       border-radius: 9px;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 700;
-      text-align: center;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px; /* Perfect spacing between icon and text */
     }
 
     .nav-btn.active {
@@ -135,25 +137,25 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    /* ITINERARY & EXPENSE CARDS */
-    .activity-card, .expense-card {
+    /* DYNAMICALLY COLOR-CODED ITINERARY CARDS */
+    .activity-card {
       background: #f8fafc;
       border-left: 4px solid var(--primary);
       padding: 12px 14px;
       border-radius: 10px;
       margin-bottom: 10px;
       position: relative;
+      transition: border-color 0.2s;
     }
 
-    .activity-meta, .expense-meta {
+    .activity-meta {
       font-size: 12px;
       font-weight: 700;
-      color: var(--primary);
       margin-bottom: 3px;
     }
 
-    .activity-title, .expense-title { font-size: 15px; font-weight: 700; color: var(--text); }
-    .activity-desc, .expense-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .activity-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .activity-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
     .delete-btn {
       position: absolute;
@@ -166,7 +168,19 @@
       padding: 2px 6px;
     }
 
-    /* EXPENSE DAY SUMMARY GROUP */
+    /* EXPENSE CARDS & DAY SUMMARIES */
+    .expense-card {
+      background: #ffffff;
+      border-left: 3px solid var(--primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
     .day-summary-card {
       background: #eff6ff;
       border: 1px solid #bfdbfe;
@@ -185,7 +199,7 @@
     }
 
     .day-summary-title { font-weight: 700; font-size: 14px; color: #1e40af; }
-    .day-summary-total { font-weight: 700; font-size: 15px; color: var(--primary); }
+    .day-summary-total { font-weight: 700; font-size: 14px; color: var(--primary); }
 
     /* PHRASE CARDS */
     .phrase-card {
@@ -255,7 +269,6 @@
       color: var(--text-muted);
     }
 
-    /* BADGES */
     .cat-badge {
       display: inline-block;
       background: #e2e8f0;
@@ -283,13 +296,13 @@
 
     <!-- MAIN DIY APP -->
     <div id="app-content" class="card hidden">
-      <!-- NAVIGATION -->
+      <!-- NAVIGATION WITH BALANCED SPACING -->
       <div class="nav-tabs">
-        <button class="nav-btn active" onclick="switchTab('itinerary', event)">🗓️ Itinerary</button>
-        <button class="nav-btn" onclick="switchTab('expense', event)">💰 Expense</button>
-        <button class="nav-btn" onclick="switchTab('converter', event)">💴 Currency</button>
-        <button class="nav-btn" onclick="switchTab('phrases', event)">🗣️ Phrases</button>
-        <button class="nav-btn" onclick="switchTab('packing', event)">🧳 Packing</button>
+        <button class="nav-btn active" onclick="switchTab('itinerary', event)"><span>🗓️</span> <span>Itinerary</span></button>
+        <button class="nav-btn" onclick="switchTab('expense', event)"><span>💰</span> <span>Expense</span></button>
+        <button class="nav-btn" onclick="switchTab('converter', event)"><span>💴</span> <span>Currency</span></button>
+        <button class="nav-btn" onclick="switchTab('phrases', event)"><span>🗣️</span> <span>Phrases</span></button>
+        <button class="nav-btn" onclick="switchTab('packing', event)"><span>🧳</span> <span>Packing</span></button>
       </div>
 
       <!-- TAB 1: DIY ITINERARY BUILDER -->
@@ -418,7 +431,25 @@
     let userExpenses = [];
     let currentSeason = null;
 
-    // POLITE & NATURAL PHRASE DATA
+    // DAY ACCENT COLOR PALETTE (AUTO-ASSIGNED BY DAY)
+    const DAY_COLORS = [
+      { border: '#2563eb', text: '#2563eb' }, // Day 1: Blue
+      { border: '#ec4899', text: '#be185d' }, // Day 2: Pink
+      { border: '#8b5cf6', text: '#6d28d9' }, // Day 3: Purple
+      { border: '#10b981', text: '#047857' }, // Day 4: Emerald
+      { border: '#f97316', text: '#c2410c' }, // Day 5: Orange
+      { border: '#14b8a6', text: '#0f766e' }, // Day 6: Teal
+      { border: '#f43f5e', text: '#be123c' }  // Day 7: Rose
+    ];
+
+    function getDayColor(dayString) {
+      if (!dayString) return DAY_COLORS[0];
+      const uniqueDays = [...new Set(userActivities.map(a => a.dateDay || 'General'))];
+      const dayIndex = uniqueDays.indexOf(dayString || 'General');
+      const colorIndex = (dayIndex >= 0 ? dayIndex : 0) % DAY_COLORS.length;
+      return DAY_COLORS[colorIndex];
+    }
+
     const PHRASE_DATA = {
       general: [
         { romaji: "Sumimasen", jp: "すみません", en: "Excuse me / Sorry" },
@@ -612,14 +643,15 @@
       }
 
       userActivities.forEach((act, idx) => {
+        const color = getDayColor(act.dateDay);
         const metaParts = [];
         if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
         metaParts.push(`⏰ ${act.time || 'Flexible'}`);
 
         list.innerHTML += `
-          <div class="activity-card">
+          <div class="activity-card" style="border-left-color: ${color.border};">
             <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
-            <div class="activity-meta">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
+            <div class="activity-meta" style="color: ${color.text};">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
             <div class="activity-title">${act.title}</div>
             ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
           </div>
@@ -672,18 +704,15 @@
         return;
       }
 
-      // Calculate Grand Total
       const grandTotal = userExpenses.reduce((sum, item) => sum + item.price, 0);
       if (grandTotalElem) grandTotalElem.innerText = "¥" + grandTotal.toLocaleString("ja-JP");
 
-      // Group by Date
       const grouped = {};
       userExpenses.forEach(item => {
         if (!grouped[item.dateDay]) grouped[item.dateDay] = [];
         grouped[item.dateDay].push(item);
       });
 
-      // Render grouped cards with day total
       Object.keys(grouped).forEach(date => {
         const items = grouped[date];
         const dayTotal = items.reduce((sum, i) => sum + i.price, 0);
@@ -700,11 +729,11 @@
           dayHtml += `
             <div class="expense-card">
               <button class="delete-btn" onclick="deleteExpense(${exp.id})">✕</button>
-              <div class="expense-title">
+              <div class="activity-title" style="font-size:14px;">
                 ${exp.name} 
                 <span class="cat-badge">${exp.category}</span>
               </div>
-              <div class="expense-desc" style="font-weight:700; color:var(--primary); margin-top:4px;">
+              <div class="activity-desc" style="font-weight:700; color:var(--primary); margin-top:2px;">
                 ¥${exp.price.toLocaleString("ja-JP")}
               </div>
             </div>
@@ -729,7 +758,8 @@
 
       document.getElementById(`tab-${tabName}`).classList.remove("hidden");
       if (evt && evt.target) {
-        evt.target.classList.add("active");
+        const targetBtn = evt.target.closest('.nav-btn');
+        if (targetBtn) targetBtn.classList.add("active");
       }
     }
 
