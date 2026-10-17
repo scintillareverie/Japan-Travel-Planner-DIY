@@ -63,9 +63,10 @@
       font-size: 14px;
       font-family: inherit;
       outline: none;
+      background-color: #ffffff;
     }
 
-    input:focus { border-color: var(--primary); }
+    input:focus, select:focus { border-color: var(--primary); }
 
     button {
       width: 100%;
@@ -246,34 +247,22 @@
         </div>
       </div>
 
-      <!-- TAB 3: ESSENTIAL PHRASES -->
+      <!-- TAB 3: ESSENTIAL PHRASES WITH CATEGORY DROPDOWN -->
       <div id="tab-phrases" class="hidden">
         <h3>🗣️ Emergency Phrasebook</h3>
-        <p style="margin-bottom:12px;">Tap-friendly flashcards for instant communication.</p>
+        <p style="margin-bottom:10px;">Select a situation category for instant communication.</p>
 
-        <div class="phrase-card">
-          <div class="phrase-jp">Sumimasen</div>
-          <div class="phrase-romaji">すみません</div>
-          <div class="phrase-en">Excuse me / Sorry</div>
-        </div>
+        <!-- CATEGORY DROPDOWN -->
+        <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Select Category:</label>
+        <select id="phrase-category-select" onchange="renderPhraseCategory()" style="margin-bottom:16px;">
+          <option value="general">🌐 General / Basics</option>
+          <option value="transportation">🚃 Transportation & Trains</option>
+          <option value="konbini">🏪 Konbini (Convenience Store)</option>
+          <option value="restaurant">🍜 Restaurant & Dining</option>
+          <option value="shopping">🛍️ Shopping & Tax-Free</option>
+        </select>
 
-        <div class="phrase-card">
-          <div class="phrase-jp">Kore wa ikura desu ka?</div>
-          <div class="phrase-romaji">これはおいくらですか？</div>
-          <div class="phrase-en">How much is this?</div>
-        </div>
-
-        <div class="phrase-card">
-          <div class="phrase-jp">Eigo no メニュー wa arimasu ka?</div>
-          <div class="phrase-romaji">英語のメニューはありますか？</div>
-          <div class="phrase-en">Do you have an English menu?</div>
-        </div>
-
-        <div class="phrase-card">
-          <div class="phrase-jp">Arigatou gozaimasu</div>
-          <div class="phrase-romaji">ありがとうございます</div>
-          <div class="phrase-en">Thank you very much</div>
-        </div>
+        <div id="phrase-list"></div>
       </div>
 
       <!-- TAB 4: SMART PACKING CHECKLIST -->
@@ -321,6 +310,42 @@
 
     let userActivities = [];
     let currentSeason = null;
+
+    // PHRASE CATEGORIES DATA (3-5 examples per category)
+    const PHRASE_DATA = {
+      general: [
+        { jp: "Sumimasen", romaji: "すみません", en: "Excuse me / Sorry" },
+        { jp: "Arigatou gozaimasu", romaji: "ありがとうございます", en: "Thank you very much" },
+        { jp: "Hai / Iie", romaji: "はい / いいえ", en: "Yes / No" },
+        { jp: "Wakarimasen", romaji: "わかりません", en: "I don't understand" },
+        { jp: "Tasukete kudasai", romaji: "助けてください", en: "Please help me!" }
+      ],
+      transportation: [
+        { jp: "~ wa doko desu ka?", romaji: "〜はどこですか？", en: "Where is ~?" },
+        { jp: "Kono densha wa ~ ni ikimasu ka?", romaji: "この電車は〜に行きますか？", en: "Does this train go to ~?" },
+        { jp: "Kippu uriba", romaji: "切符売り場", en: "Ticket counter / office" },
+        { jp: "Taxi noriba wa doko desu ka?", romaji: "タクシー乗り場はどこですか？", en: "Where is the taxi stand?" }
+      ],
+      konbini: [
+        { jp: "Fukuro wa kekkou desu", romaji: "袋は結構です", en: "No plastic bag needed, thanks" },
+        { jp: "Atatame kudasai", romaji: "温めてください", en: "Please heat this up (bento)" },
+        { jp: "Suica de sharaimasu", romaji: "Suicaで払います", en: "I'll pay with Suica / IC card" },
+        { jp: "Spoon / Hashi kudasai", romaji: "スプーン / お箸ください", en: "Spoon / Chopsticks please" }
+      ],
+      restaurant: [
+        { jp: "Hitori / Futari desu", romaji: "1人 / 2人です", en: "1 person / 2 people" },
+        { jp: "Eigo no menu wa arimasu ka?", romaji: "英語のメニューはありますか？", en: "Do you have an English menu?" },
+        { jp: "Kore kudasai", romaji: "これください", en: "This one, please (pointing)" },
+        { jp: "O-mizu kudasai", romaji: "お水ください", en: "Water, please" },
+        { jp: "O-kaikei kudasai", romaji: "お会計ください", en: "Check / Bill, please" }
+      ],
+      shopping: [
+        { jp: "Kore wa ikura desu ka?", romaji: "これはおいくらですか？", en: "How much is this?" },
+        { jp: "Shichaku shitemo ii desu ka?", romaji: "試着してもいいですか？", en: "Can I try this on?" },
+        { jp: "Menzei deki masu ka?", romaji: "免税できますか？", en: "Is tax-free available?" },
+        { jp: "Card de sharaimasu", romaji: "カードで払います", en: "I'll pay by credit card" }
+      ]
+    };
 
     const YEAR_ROUND_ITEMS = [
       "Passport & Flight Tickets",
@@ -428,6 +453,7 @@
       document.getElementById("lock-screen").classList.add("hidden");
       document.getElementById("app-content").classList.remove("hidden");
       loadActivities();
+      renderPhraseCategory();
     }
 
     // DIY ITINERARY STORAGE LOGIC
@@ -500,6 +526,24 @@
       }
     }
 
+    // PHRASE CATEGORY RENDER LOGIC
+    function renderPhraseCategory() {
+      const select = document.getElementById("phrase-category-select");
+      const categoryKey = select ? select.value : "general";
+      const phrases = PHRASE_DATA[categoryKey] || [];
+      const container = document.getElementById("phrase-list");
+
+      if (container) {
+        container.innerHTML = phrases.map(p => `
+          <div class="phrase-card">
+            <div class="phrase-jp">${p.jp}</div>
+            <div class="phrase-romaji">${p.romaji}</div>
+            <div class="phrase-en">${p.en}</div>
+          </div>
+        `).join('');
+      }
+    }
+
     // PACKING LIST LOGIC
     function selectSeason(season, evt) {
       currentSeason = season;
@@ -507,7 +551,6 @@
       document.querySelectorAll(".season-btn").forEach(btn => btn.classList.remove("active"));
       if (evt && evt.target) evt.target.classList.add("active");
 
-      // Reveal packing list content
       document.getElementById("packing-content").classList.remove("hidden");
       renderPackingList();
     }
