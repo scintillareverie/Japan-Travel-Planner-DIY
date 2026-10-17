@@ -161,9 +161,9 @@
     <div id="app-content" class="card hidden">
       <!-- NAVIGATION -->
       <div class="nav-tabs">
-        <button class="nav-btn active" onclick="switchTab('itinerary')">🗓️ Itinerary</button>
-        <button class="nav-btn" onclick="switchTab('converter')">💴 Currency</button>
-        <button class="nav-btn" onclick="switchTab('phrases')">🗣️ Phrases</button>
+        <button class="nav-btn active" onclick="switchTab('itinerary', event)">🗓️ Itinerary</button>
+        <button class="nav-btn" onclick="switchTab('converter', event)">💴 Currency</button>
+        <button class="nav-btn" onclick="switchTab('phrases', event)">🗣️ Phrases</button>
       </div>
 
       <!-- TAB 1: DIY ITINERARY BUILDER -->
@@ -237,7 +237,7 @@
   <script>
     // 1. Google Sheet Setup
     const SHEET_ID = "1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg";
-    const API_URL = `https://docs.google.com/spreadsheets/d/${1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg}/export?format=csv`;
+    const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
     let userActivities = [];
 
@@ -364,7 +364,7 @@
     }
 
     // TAB SWITCHING
-    function switchTab(tabName) {
+    function switchTab(tabName, evt) {
       document.getElementById("tab-itinerary").classList.add("hidden");
       document.getElementById("tab-converter").classList.add("hidden");
       document.getElementById("tab-phrases").classList.add("hidden");
@@ -373,7 +373,9 @@
       navBtns.forEach(btn => btn.classList.remove("active"));
 
       document.getElementById(`tab-${tabName}`).classList.remove("hidden");
-      event.target.classList.add("active");
+      if (evt && evt.target) {
+        evt.target.classList.add("active");
+      }
     }
 
     // CONVERTER LOGIC
