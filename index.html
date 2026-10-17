@@ -290,6 +290,7 @@
             errorMessage.innerText = "This passcode expired on " + matchingUser.ExpirationDate;
           } else {
             localStorage.setItem("diyUnlocked", "true");
+            localStorage.setItem("activePasscode", input);
             errorMessage.innerText = "";
             showApp();
           }
@@ -311,14 +312,16 @@
       loadActivities();
     }
 
-    // DIY ITINERARY STORAGE LOGIC
+    // DIY ITINERARY STORAGE LOGIC (Isolated per Passcode)
     function loadActivities() {
-      const saved = localStorage.getItem("diyItinerary");
+      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+      const saved = localStorage.getItem("diyItinerary_" + activeCode);
       userActivities = saved ? JSON.parse(saved) : [];
       renderActivities();
     }
 
     function addActivity() {
+      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       const time = document.getElementById("act-time").value.trim();
       const title = document.getElementById("act-title").value.trim();
       const desc = document.getElementById("act-desc").value.trim();
@@ -326,7 +329,7 @@
       if (!title) return alert("Please enter an activity title!");
 
       userActivities.push({ time, title, desc });
-      localStorage.setItem("diyItinerary", JSON.stringify(userActivities));
+      localStorage.setItem("diyItinerary_" + activeCode, JSON.stringify(userActivities));
 
       // Clear inputs
       document.getElementById("act-time").value = "";
@@ -337,8 +340,9 @@
     }
 
     function deleteActivity(index) {
+      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       userActivities.splice(index, 1);
-      localStorage.setItem("diyItinerary", JSON.stringify(userActivities));
+      localStorage.setItem("diyItinerary_" + activeCode, JSON.stringify(userActivities));
       renderActivities();
     }
 
@@ -388,6 +392,7 @@
 
     function lockApp() {
       localStorage.removeItem("diyUnlocked");
+      localStorage.removeItem("activePasscode");
       location.reload();
     }
   </script>
