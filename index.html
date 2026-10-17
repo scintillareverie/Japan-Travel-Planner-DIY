@@ -142,6 +142,52 @@
     .phrase-jp { font-weight: 700; color: var(--primary); font-size: 15px; }
     .phrase-romaji { font-size: 12px; color: var(--text-muted); }
     .phrase-en { font-size: 13px; margin-top: 4px; }
+
+    /* SEASON SELECTOR BUTTONS */
+.season-btn {
+  flex: 1;
+  background: #f1f5f9;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 8px 4px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.season-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* CHECKLIST ITEMS */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  margin: 0;
+}
+
+.checklist-item.checked span {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
   </style>
 </head>
 <body>
@@ -161,10 +207,11 @@
     <div id="app-content" class="card hidden">
       <!-- NAVIGATION -->
       <div class="nav-tabs">
-        <button class="nav-btn active" onclick="switchTab('itinerary', event)">🗓️ Itinerary</button>
-        <button class="nav-btn" onclick="switchTab('converter', event)">💴 Currency</button>
-        <button class="nav-btn" onclick="switchTab('phrases', event)">🗣️ Phrases</button>
-      </div>
+  <button class="nav-btn active" onclick="switchTab('itinerary', event)">🗓️ Itinerary</button>
+  <button class="nav-btn" onclick="switchTab('converter', event)">💴 Currency</button>
+  <button class="nav-btn" onclick="switchTab('phrases', event)">🗣️ Phrases</button>
+  <button class="nav-btn" onclick="switchTab('packing', event)">🧳 Packing</button>
+</div>
 
       <!-- TAB 1: DIY ITINERARY BUILDER -->
       <div id="tab-itinerary">
@@ -198,7 +245,7 @@
           <h2 id="idr-result" style="color:var(--primary); margin-top:4px;">Rp 0</h2>
         </div>
       </div>
-
+      
       <!-- TAB 3: ESSENTIAL PHRASES -->
       <div id="tab-phrases" class="hidden">
         <h3>🗣️ Emergency Phrasebook</h3>
@@ -228,6 +275,38 @@
           <div class="phrase-en">Thank you very much</div>
         </div>
       </div>
+
+      <!-- TAB 4: SMART PACKING CHECKLIST -->
+<div id="tab-packing" class="hidden">
+  <h3>🧳 Japan Packing Checklist</h3>
+  <p style="margin-bottom:12px;">Select your travel season to customize your list.</p>
+
+  <!-- SEASON SELECTOR BUTTONS -->
+  <div style="display:flex; gap:6px; margin-bottom:16px;">
+    <button class="season-btn active" onclick="selectSeason('spring', event)">🌸 Spring</button>
+    <button class="season-btn" onclick="selectSeason('summer', event)">☀️ Summer</button>
+    <button class="season-btn" onclick="selectSeason('autumn', event)">🍁 Autumn</button>
+    <button class="season-btn" onclick="selectSeason('winter', event)">❄️ Winter</button>
+  </div>
+
+  <!-- YEAR-ROUND ESSENTIALS -->
+  <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px;">Year-Round Essentials</h4>
+  <div id="essentials-list"></div>
+
+  <!-- SEASON SPECIFIC ITEMS -->
+  <h4 style="font-size:13px; color:var(--primary); margin-top:16px; margin-bottom:8px;" id="season-title">🌸 Spring Essentials</h4>
+  <div id="seasonal-list"></div>
+
+  <!-- CUSTOM ITEMS SECTION -->
+<h4 style="font-size:13px; color:var(--primary); margin-top:16px; margin-bottom:8px;">My Personal Items</h4>
+
+<div style="display:flex; gap:6px; margin-bottom:12px;">
+  <input type="text" id="custom-item-input" placeholder="e.g. Camera battery, skincare..." style="margin:0;">
+  <button onclick="addCustomPackingItem()" style="width:auto; padding:10px 16px; white-space:nowrap;">+ Add</button>
+</div>
+
+<div id="custom-packing-list"></div>
+</div>
 
       <br>
       <button onclick="lockApp()" style="background-color: #f1f5f9; color: #ef4444;">Lock App</button>
@@ -395,6 +474,206 @@
       localStorage.removeItem("activePasscode");
       location.reload();
     }
+
+    // 1. PACKING DATA
+const YEAR_ROUND_ITEMS = [
+  "Passport & Flight Tickets",
+  "Yen Cash & Coin Purse (Coins are heavy in Japan!)",
+  "Suica / Pasmo / IC Card",
+  "Pocket Wi-Fi or e-SIM",
+  "Universal Power Adapter (Japan uses Type A / 2-pin)",
+  "Power Bank (Portable Charger)",
+  "Comfortable Walking Shoes (10k-20k steps/day)"
+];
+
+const SEASONAL_ITEMS = {
+  spring: [
+    "Light Jacket / Windbreaker (Cool mornings/nights)",
+    "Layered clothing (T-shirts + Cardigans)",
+    "Hay fever / Pollen Allergy Medicine",
+    "Compact Umbrella (Spring rain)"
+  ],
+  summer: [
+    "Lightweight, Breathable Clothes",
+    "UV Protection Parasol or Sunscreen",
+    "Gatsby Cooling Wipes / Handheld Fan",
+    "Small Hand Towel (For wiping sweat)"
+  ],
+  autumn: [
+    "Medium Jacket or Trench Coat",
+    "Light Thermal Layers for late Autumn",
+    "Moisturizer / Lip Balm",
+    "Comfortable Boots or Sneakers"
+  ],
+  winter: [
+    "Heattech / Thermal Innerwear (2-3 sets)",
+    "Heavy Down Coat / Puffer Jacket",
+    "Warm Gloves, Beanie & Scarf",
+    "Kairo (Self-heating body packs)"
+  ]
+};
+
+let currentSeason = 'spring';
+
+// 2. RENDER PACKING LIST
+function renderPackingList() {
+  const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+  const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
+
+  // Render Essentials
+  const essentialsDiv = document.getElementById("essentials-list");
+  if (essentialsDiv) {
+    essentialsDiv.innerHTML = YEAR_ROUND_ITEMS.map((item, idx) => {
+      const id = "essential_" + idx;
+      const isChecked = savedChecks[id] ? "checked" : "";
+      return `
+        <label class="checklist-item ${isChecked ? 'checked' : ''}">
+          <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+          <span>${item}</span>
+        </label>
+      `;
+    }).join('');
+  }
+
+  // Render Seasonal Items
+  const seasonalDiv = document.getElementById("seasonal-list");
+  const seasonTitle = document.getElementById("season-title");
+  
+  if (seasonalDiv) {
+    const titles = { spring: "🌸 Spring Items", summer: "☀️ Summer Items", autumn: "🍁 Autumn Items", winter: "❄️ Winter Items" };
+    seasonTitle.innerText = titles[currentSeason];
+
+    seasonalDiv.innerHTML = SEASONAL_ITEMS[currentSeason].map((item, idx) => {
+      const id = currentSeason + "_" + idx;
+      const isChecked = savedChecks[id] ? "checked" : "";
+      return `
+        <label class="checklist-item ${isChecked ? 'checked' : ''}">
+          <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+          <span>${item}</span>
+        </label>
+      `;
+    }).join('');
+  }
+
+  function renderPackingList() {
+  const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+  const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
+
+  // 1. Render Year-Round Essentials
+  const essentialsDiv = document.getElementById("essentials-list");
+  if (essentialsDiv) {
+    essentialsDiv.innerHTML = YEAR_ROUND_ITEMS.map((item, idx) => {
+      const id = "essential_" + idx;
+      const isChecked = savedChecks[id] ? "checked" : "";
+      return `
+        <label class="checklist-item ${isChecked ? 'checked' : ''}">
+          <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+          <span>${item}</span>
+        </label>
+      `;
+    }).join('');
+  }
+
+  // 2. Render Seasonal Items
+  const seasonalDiv = document.getElementById("seasonal-list");
+  const seasonTitle = document.getElementById("season-title");
+  if (seasonalDiv) {
+    const titles = { spring: "🌸 Spring Items", summer: "☀️ Summer Items", autumn: "🍁 Autumn Items", winter: "❄️ Winter Items" };
+    seasonTitle.innerText = titles[currentSeason];
+
+    seasonalDiv.innerHTML = SEASONAL_ITEMS[currentSeason].map((item, idx) => {
+      const id = currentSeason + "_" + idx;
+      const isChecked = savedChecks[id] ? "checked" : "";
+      return `
+        <label class="checklist-item ${isChecked ? 'checked' : ''}">
+          <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+          <span>${item}</span>
+        </label>
+      `;
+    }).join('');
+  }
+
+  // 3. Render Custom Personal Items
+  const customDiv = document.getElementById("custom-packing-list");
+  if (customDiv) {
+    const customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
+
+    if (customItems.length === 0) {
+      customDiv.innerHTML = "<p style='font-size:12px; color:var(--text-muted); text-align:center;'>No personal items added yet.</p>";
+    } else {
+      customDiv.innerHTML = customItems.map(item => {
+        const isChecked = savedChecks[item.id] ? "checked" : "";
+        return `
+          <div class="checklist-item ${isChecked ? 'checked' : ''}" style="justify-content:space-between;">
+            <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; margin:0;">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${item.id}', this)">
+              <span>${item.text}</span>
+            </label>
+            <button onclick="deleteCustomPackingItem('${item.id}')" style="background:none; color:#ef4444; width:auto; padding:0 4px; font-size:12px;">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+}
+
+// 3. SWITCH SEASON
+function selectSeason(season, evt) {
+  currentSeason = season;
+  document.querySelectorAll(".season-btn").forEach(btn => btn.classList.remove("active"));
+  if (evt && evt.target) evt.target.classList.add("active");
+  renderPackingList();
+}
+
+// 4. SAVE CHECKBOX STATE TO LOCAL STORAGE
+function toggleCheck(itemId, checkbox) {
+  const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+  const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
+  
+  savedChecks[itemId] = checkbox.checked;
+  localStorage.setItem("packingChecks_" + activeCode, JSON.stringify(savedChecks));
+  
+  checkbox.parentElement.classList.toggle("checked", checkbox.checked);
+}
+
+// Update showApp() to initialize the packing list when app loads:
+// Add renderPackingList(); inside showApp() function.
+
+    // ADD CUSTOM ITEM
+function addCustomPackingItem() {
+  const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+  const input = document.getElementById("custom-item-input");
+  const text = input.value.trim();
+
+  if (!text) return alert("Please type an item name!");
+
+  const customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
+  
+  // Save with a unique timestamp ID
+  customItems.push({ id: "custom_" + Date.now(), text: text });
+
+  localStorage.setItem("customPacking_" + activeCode, JSON.stringify(customItems));
+  input.value = "";
+  renderPackingList();
+}
+
+// DELETE CUSTOM ITEM
+function deleteCustomPackingItem(itemId) {
+  const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+  let customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
+
+  // Remove item from array
+  customItems = customItems.filter(item => item.id !== itemId);
+  localStorage.setItem("customPacking_" + activeCode, JSON.stringify(customItems));
+
+  // Clean up saved checkbox state
+  const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
+  delete savedChecks[itemId];
+  localStorage.setItem("packingChecks_" + activeCode, JSON.stringify(savedChecks));
+
+  renderPackingList();
+}
   </script>
 </body>
 </html>
