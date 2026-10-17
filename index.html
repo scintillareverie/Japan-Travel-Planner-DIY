@@ -217,7 +217,7 @@
         </div>
 
         <div class="phrase-card">
-          <div class="phrase-jp">Eigo noメニュー wa arimasu ka?</div>
+          <div class="phrase-jp">Eigo no メニュー wa arimasu ka?</div>
           <div class="phrase-romaji">英語のメニューはありますか？</div>
           <div class="phrase-en">Do you have an English menu?</div>
         </div>
@@ -235,7 +235,18 @@
   </div>
 
   <script>
+    // 1. Google Sheet Setup
     const SHEET_ID = "1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg";
+    const API_URL = `https://docs.google.com/spreadsheets/d/${1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg}/export?format=csv`;
+
+    let userActivities = [];
+
+    window.onload = function() {
+      if (localStorage.getItem("diyUnlocked") === "true") {
+        showApp();
+      }
+    };
+
     function parseCSV(csvText) {
       const lines = csvText.trim().split("\n");
       const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ''));
@@ -265,20 +276,29 @@
 
       try {
         const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Spreadsheet fetch failed");
+
         const csvText = await response.text();
         const rows = parseCSV(csvText);
 
         const matchingUser = rows.find(row => row.Passcode && row.Passcode.trim().toUpperCase() === input);
 
         if (matchingUser) {
-          localStorage.setItem("diyUnlocked", "true");
-          errorMessage.innerText = "";
-          showApp();
+          const today = new Date().toISOString().split('T')[0];
+          
+          if (matchingUser.ExpirationDate && matchingUser.ExpirationDate < today) {
+            errorMessage.innerText = "This passcode expired on " + matchingUser.ExpirationDate;
+          } else {
+            localStorage.setItem("diyUnlocked", "true");
+            errorMessage.innerText = "";
+            showApp();
+          }
         } else {
           errorMessage.innerText = "Invalid passcode. Please purchase access from creator.";
         }
       } catch (error) {
-        errorMessage.innerText = "Network error during verification.";
+        console.error(error);
+        errorMessage.innerText = "Unable to connect. Check internet or Google Sheet permissions.";
       } finally {
         unlockBtn.innerText = "Unlock App";
         unlockBtn.disabled = false;
