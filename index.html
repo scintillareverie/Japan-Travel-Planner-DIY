@@ -445,40 +445,52 @@
     </div>
   </div>
 
-  <script>
+  <!-- FIREBASE SDK & APP LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // YOUR ACTUAL FIREBASE CONFIG KEYS
+    const firebaseConfig = {
+      apiKey: "AIzaSyDvmXSlzsQsbTDtb-MiFLlR3wlI6AqupjY",
+      authDomain: "japan-travel-planner-diy.firebaseapp.com",
+      projectId: "japan-travel-planner-diy",
+      storageBucket: "japan-travel-planner-diy.firebasestorage.app",
+      messagingSenderId: "170830880071",
+      appId: "1:170830880071:web:945a9a6c55a9a1ea7a8062"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Global variables
     const SHEET_ID = "1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg";
     const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
     let userActivities = [];
     let userExpenses = [];
+    let packingChecks = {};
+    let customPacking = [];
     let currentSeason = null;
+    let unsubscribeFirestore = null;
 
-    // 15 DISTINCT ACCENT COLORS (DAY 1 TO DAY 15)
     const DAY_COLORS = [
-      { border: '#2563eb', text: '#2563eb' }, // Day 1: Blue
-      { border: '#ec4899', text: '#be185d' }, // Day 2: Pink
-      { border: '#8b5cf6', text: '#6d28d9' }, // Day 3: Purple
-      { border: '#10b981', text: '#047857' }, // Day 4: Emerald
-      { border: '#f97316', text: '#c2410c' }, // Day 5: Orange
-      { border: '#14b8a6', text: '#0f766e' }, // Day 6: Teal
-      { border: '#f43f5e', text: '#be123c' }, // Day 7: Rose
-      { border: '#6366f1', text: '#4338ca' }, // Day 8: Indigo
-      { border: '#d97706', text: '#b45309' }, // Day 9: Amber Gold
-      { border: '#06b6d4', text: '#0e7490' }, // Day 10: Cyan
-      { border: '#7c3aed', text: '#5b21b6' }, // Day 11: Violet
-      { border: '#65a30d', text: '#3f6212' }, // Day 12: Lime
-      { border: '#dc2626', text: '#991b1b' }, // Day 13: Coral Red
-      { border: '#0284c7', text: '#0369a1' }, // Day 14: Sky Blue
-      { border: '#d946ef', text: '#a21caf' }  // Day 15: Fuchsia
+      { border: '#2563eb', text: '#2563eb' },
+      { border: '#ec4899', text: '#be185d' },
+      { border: '#8b5cf6', text: '#6d28d9' },
+      { border: '#10b981', text: '#047857' },
+      { border: '#f97316', text: '#c2410c' },
+      { border: '#14b8a6', text: '#0f766e' },
+      { border: '#f43f5e', text: '#be123c' },
+      { border: '#6366f1', text: '#4338ca' },
+      { border: '#d97706', text: '#b45309' },
+      { border: '#06b6d4', text: '#0e7490' },
+      { border: '#7c3aed', text: '#5b21b6' },
+      { border: '#65a30d', text: '#3f6212' },
+      { border: '#dc2626', text: '#991b1b' },
+      { border: '#0284c7', text: '#0369a1' },
+      { border: '#d946ef', text: '#a21caf' }
     ];
-
-    function getDayColor(dayString) {
-      if (!dayString) return DAY_COLORS[0];
-      const uniqueDays = [...new Set(userActivities.map(a => a.dateDay || 'General'))];
-      const dayIndex = uniqueDays.indexOf(dayString || 'General');
-      const colorIndex = (dayIndex >= 0 ? dayIndex : 0) % DAY_COLORS.length;
-      return DAY_COLORS[colorIndex];
-    }
 
     const PHRASE_DATA = {
       general: [
@@ -510,7 +522,7 @@
         { romaji: "O-kaikei onegai shimasu", jp: "お会計お願いします", en: "Check / Bill, please" }
       ],
       shopping: [
-        { romaji: "Kore wa ikura desu ka?", jp: "これはおいくらですか？", en: "How much is this?" },
+        { romaji: "Kore wa ikura desu ka?", jp: "粉れはおいくらですか？", en: "How much is this?" },
         { romaji: "Shichaku shitemo ii desu ka?", jp: "試着してもいいですか？", en: "Can I try this on?" },
         { romaji: "Atarashii mono wa arimasu ka?", jp: "新しいものはありますか？", en: "Do you have an unopened/new one?" },
         { romaji: "Menzei deki masu ka?", jp: "免税できますか？", en: "Is tax-free available?" },
@@ -623,21 +635,54 @@
     function showApp() {
       document.getElementById("lock-screen").classList.add("hidden");
       document.getElementById("app-content").classList.remove("hidden");
-      loadActivities();
-      loadExpenses();
+      listenToFirebaseData();
       renderPhraseCategory();
     }
 
-    // DIY ITINERARY STORAGE LOGIC
-    function loadActivities() {
+    function listenToFirebaseData() {
       const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const saved = localStorage.getItem("diyItinerary_" + activeCode);
-      userActivities = saved ? JSON.parse(saved) : [];
-      renderActivities();
+      const docRef = doc(db, "trips", activeCode);
+
+      if (unsubscribeFirestore) unsubscribeFirestore();
+
+      unsubscribeFirestore = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          userActivities = data.userActivities || [];
+          userExpenses = data.userExpenses || [];
+          packingChecks = data.packingChecks || {};
+          customPacking = data.customPacking || [];
+        } else {
+          userActivities = [];
+          userExpenses = [];
+          packingChecks = {};
+          customPacking = [];
+        }
+
+        renderActivities();
+        renderExpenses();
+        renderPackingList();
+      }, (error) => {
+        console.error("Firebase sync error:", error);
+      });
+    }
+
+    async function saveToFirebase() {
+      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+      const docRef = doc(db, "trips", activeCode);
+      try {
+        await setDoc(docRef, {
+          userActivities,
+          userExpenses,
+          packingChecks,
+          customPacking
+        }, { merge: true });
+      } catch (err) {
+        console.error("Failed to save to cloud:", err);
+      }
     }
 
     function addActivity() {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       const dateDay = document.getElementById("act-date").value.trim();
       const time = document.getElementById("act-time").value.trim();
       const title = document.getElementById("act-title").value.trim();
@@ -646,21 +691,25 @@
       if (!title) return alert("Please enter an activity title!");
 
       userActivities.push({ dateDay, time, title, desc });
-      localStorage.setItem("diyItinerary_" + activeCode, JSON.stringify(userActivities));
+      saveToFirebase();
 
       document.getElementById("act-date").value = "";
       document.getElementById("act-time").value = "";
       document.getElementById("act-title").value = "";
       document.getElementById("act-desc").value = "";
-
-      renderActivities();
     }
 
     function deleteActivity(index) {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       userActivities.splice(index, 1);
-      localStorage.setItem("diyItinerary_" + activeCode, JSON.stringify(userActivities));
-      renderActivities();
+      saveToFirebase();
+    }
+
+    function getDayColor(dayString) {
+      if (!dayString) return DAY_COLORS[0];
+      const uniqueDays = [...new Set(userActivities.map(a => a.dateDay || 'General'))];
+      const dayIndex = uniqueDays.indexOf(dayString || 'General');
+      const colorIndex = (dayIndex >= 0 ? dayIndex : 0) % DAY_COLORS.length;
+      return DAY_COLORS[colorIndex];
     }
 
     function renderActivities() {
@@ -689,16 +738,7 @@
       });
     }
 
-    // EXPENSE TRACKER STORAGE LOGIC
-    function loadExpenses() {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const saved = localStorage.getItem("diyExpenses_" + activeCode);
-      userExpenses = saved ? JSON.parse(saved) : [];
-      renderExpenses();
-    }
-
     function addExpense() {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       const dateDay = document.getElementById("exp-date").value.trim() || "General Expenses";
       const name = document.getElementById("exp-name").value.trim();
       const price = parseFloat(document.getElementById("exp-price").value) || 0;
@@ -708,19 +748,15 @@
       if (price <= 0) return alert("Please enter a valid price in Yen!");
 
       userExpenses.push({ id: Date.now(), dateDay, name, price, category });
-      localStorage.setItem("diyExpenses_" + activeCode, JSON.stringify(userExpenses));
+      saveToFirebase();
 
       document.getElementById("exp-name").value = "";
       document.getElementById("exp-price").value = "";
-
-      renderExpenses();
     }
 
     function deleteExpense(expenseId) {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       userExpenses = userExpenses.filter(item => item.id !== expenseId);
-      localStorage.setItem("diyExpenses_" + activeCode, JSON.stringify(userExpenses));
-      renderExpenses();
+      saveToFirebase();
     }
 
     function renderExpenses() {
@@ -775,7 +811,94 @@
       });
     }
 
-    // TAB SWITCHING LOGIC
+    function selectSeason(season, evt) {
+      currentSeason = season;
+      document.querySelectorAll(".season-btn").forEach(btn => btn.classList.remove("active"));
+      if (evt && evt.target) evt.target.classList.add("active");
+
+      document.getElementById("packing-content").classList.remove("hidden");
+      renderPackingList();
+    }
+
+    function renderPackingList() {
+      if (!currentSeason) return;
+
+      const essentialsDiv = document.getElementById("essentials-list");
+      if (essentialsDiv) {
+        essentialsDiv.innerHTML = YEAR_ROUND_ITEMS.map((item, idx) => {
+          const id = "essential_" + idx;
+          const isChecked = packingChecks[id] ? "checked" : "";
+          return `
+            <label class="checklist-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+              <span>${item}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      const seasonalDiv = document.getElementById("seasonal-list");
+      const seasonTitle = document.getElementById("season-title");
+      if (seasonalDiv) {
+        const titles = { spring: "🌸 Spring Items", summer: "☀️ Summer Items", autumn: "🍁 Autumn Items", winter: "❄️ Winter Items" };
+        seasonTitle.innerText = titles[currentSeason];
+
+        seasonalDiv.innerHTML = SEASONAL_ITEMS[currentSeason].map((item, idx) => {
+          const id = currentSeason + "_" + idx;
+          const isChecked = packingChecks[id] ? "checked" : "";
+          return `
+            <label class="checklist-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+              <span>${item}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      const customDiv = document.getElementById("custom-packing-list");
+      if (customDiv) {
+        if (customPacking.length === 0) {
+          customDiv.innerHTML = "<p style='font-size:13px; color:var(--text-muted); text-align:center;'>No personal items added yet.</p>";
+        } else {
+          customDiv.innerHTML = customPacking.map(item => {
+            const isChecked = packingChecks[item.id] ? "checked" : "";
+            return `
+              <div class="checklist-item ${isChecked ? 'checked' : ''}" style="justify-content:space-between;">
+                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; margin:0;">
+                  <input type="checkbox" ${isChecked} onchange="toggleCheck('${item.id}', this)">
+                  <span>${item.text}</span>
+                </label>
+                <button onclick="deleteCustomPackingItem('${item.id}')" style="background:none; color:#ef4444; width:auto; padding:0 4px; font-size:13px;">✕</button>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+
+    function toggleCheck(itemId, checkbox) {
+      packingChecks[itemId] = checkbox.checked;
+      saveToFirebase();
+    }
+
+    function addCustomPackingItem() {
+      const input = document.getElementById("custom-item-input");
+      const text = input.value.trim();
+
+      if (!text) return alert("Please type an item name!");
+
+      customPacking.push({ id: "custom_" + Date.now(), text: text });
+      saveToFirebase();
+
+      input.value = "";
+    }
+
+    function deleteCustomPackingItem(itemId) {
+      customPacking = customPacking.filter(item => item.id !== itemId);
+      delete packingChecks[itemId];
+      saveToFirebase();
+    }
+
     function switchTab(tabName, evt) {
       document.getElementById("tab-itinerary").classList.add("hidden");
       document.getElementById("tab-expense").classList.add("hidden");
@@ -810,115 +933,6 @@
       }
     }
 
-    function selectSeason(season, evt) {
-      currentSeason = season;
-      document.querySelectorAll(".season-btn").forEach(btn => btn.classList.remove("active"));
-      if (evt && evt.target) evt.target.classList.add("active");
-
-      document.getElementById("packing-content").classList.remove("hidden");
-      renderPackingList();
-    }
-
-    function renderPackingList() {
-      if (!currentSeason) return;
-
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
-
-      const essentialsDiv = document.getElementById("essentials-list");
-      if (essentialsDiv) {
-        essentialsDiv.innerHTML = YEAR_ROUND_ITEMS.map((item, idx) => {
-          const id = "essential_" + idx;
-          const isChecked = savedChecks[id] ? "checked" : "";
-          return `
-            <label class="checklist-item ${isChecked ? 'checked' : ''}">
-              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
-              <span>${item}</span>
-            </label>
-          `;
-        }).join('');
-      }
-
-      const seasonalDiv = document.getElementById("seasonal-list");
-      const seasonTitle = document.getElementById("season-title");
-      if (seasonalDiv) {
-        const titles = { spring: "🌸 Spring Items", summer: "☀️ Summer Items", autumn: "🍁 Autumn Items", winter: "❄️ Winter Items" };
-        seasonTitle.innerText = titles[currentSeason];
-
-        seasonalDiv.innerHTML = SEASONAL_ITEMS[currentSeason].map((item, idx) => {
-          const id = currentSeason + "_" + idx;
-          const isChecked = savedChecks[id] ? "checked" : "";
-          return `
-            <label class="checklist-item ${isChecked ? 'checked' : ''}">
-              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
-              <span>${item}</span>
-            </label>
-          `;
-        }).join('');
-      }
-
-      const customDiv = document.getElementById("custom-packing-list");
-      if (customDiv) {
-        const customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
-
-        if (customItems.length === 0) {
-          customDiv.innerHTML = "<p style='font-size:13px; color:var(--text-muted); text-align:center;'>No personal items added yet.</p>";
-        } else {
-          customDiv.innerHTML = customItems.map(item => {
-            const isChecked = savedChecks[item.id] ? "checked" : "";
-            return `
-              <div class="checklist-item ${isChecked ? 'checked' : ''}" style="justify-content:space-between;">
-                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; margin:0;">
-                  <input type="checkbox" ${isChecked} onchange="toggleCheck('${item.id}', this)">
-                  <span>${item.text}</span>
-                </label>
-                <button onclick="deleteCustomPackingItem('${item.id}')" style="background:none; color:#ef4444; width:auto; padding:0 4px; font-size:13px;">✕</button>
-              </div>
-            `;
-          }).join('');
-        }
-      }
-    }
-
-    function toggleCheck(itemId, checkbox) {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
-      
-      savedChecks[itemId] = checkbox.checked;
-      localStorage.setItem("packingChecks_" + activeCode, JSON.stringify(savedChecks));
-      
-      checkbox.parentElement.classList.toggle("checked", checkbox.checked);
-    }
-
-    function addCustomPackingItem() {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const input = document.getElementById("custom-item-input");
-      const text = input.value.trim();
-
-      if (!text) return alert("Please type an item name!");
-
-      const customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
-      customItems.push({ id: "custom_" + Date.now(), text: text });
-
-      localStorage.setItem("customPacking_" + activeCode, JSON.stringify(customItems));
-      input.value = "";
-      renderPackingList();
-    }
-
-    function deleteCustomPackingItem(itemId) {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      let customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
-
-      customItems = customItems.filter(item => item.id !== itemId);
-      localStorage.setItem("customPacking_" + activeCode, JSON.stringify(customItems));
-
-      const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
-      delete savedChecks[itemId];
-      localStorage.setItem("packingChecks_" + activeCode, JSON.stringify(savedChecks));
-
-      renderPackingList();
-    }
-
     function convertCurrency() {
       const rate = parseFloat(document.getElementById("jpy-rate").value) || 0;
       const jpy = parseFloat(document.getElementById("jpy-input").value) || 0;
@@ -927,10 +941,25 @@
     }
 
     function lockApp() {
+      if (unsubscribeFirestore) unsubscribeFirestore();
       localStorage.removeItem("diyUnlocked");
       localStorage.removeItem("activePasscode");
       location.reload();
     }
+
+    window.checkPasscode = checkPasscode;
+    window.addActivity = addActivity;
+    window.deleteActivity = deleteActivity;
+    window.addExpense = addExpense;
+    window.deleteExpense = deleteExpense;
+    window.selectSeason = selectSeason;
+    window.toggleCheck = toggleCheck;
+    window.addCustomPackingItem = addCustomPackingItem;
+    window.deleteCustomPackingItem = deleteCustomPackingItem;
+    window.switchTab = switchTab;
+    window.renderPhraseCategory = renderPhraseCategory;
+    window.convertCurrency = convertCurrency;
+    window.lockApp = lockApp;
   </script>
 </body>
 </html>
