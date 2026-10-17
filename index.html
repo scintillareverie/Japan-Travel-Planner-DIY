@@ -152,7 +152,7 @@
       padding: 2px 6px;
     }
 
-    /* PHRASE CARDS WITH BIG JAPANESE CHARACTERS */
+    /* PHRASE CARDS WITH BIGGER ROMAJI & JAPANESE CHARACTERS */
     .phrase-card {
       background: #f8fafc;
       padding: 14px 16px;
@@ -167,8 +167,13 @@
       line-height: 1.3;
       margin-bottom: 4px;
     }
-    .phrase-romaji { font-size: 13px; color: var(--text-muted); }
-    .phrase-en { font-size: 13px; margin-top: 4px; font-weight: 600; color: var(--text); }
+    .phrase-romaji { 
+      font-size: 15px; 
+      font-weight: 600;
+      color: #475569; 
+      margin-bottom: 2px;
+    }
+    .phrase-en { font-size: 13.5px; margin-top: 4px; font-weight: 600; color: var(--text); }
 
     /* SEASON BUTTONS */
     .season-btn {
@@ -333,39 +338,42 @@
     let userActivities = [];
     let currentSeason = null;
 
-    // POLITE PHRASE DATA (No "kudasai", using "onegai shimasu" / "itadakemasu ka?")
+    // POLITE & NATURAL PHRASE DATA
     const PHRASE_DATA = {
       general: [
         { romaji: "Sumimasen", jp: "すみません", en: "Excuse me / Sorry" },
         { romaji: "Arigatou gozaimasu", jp: "ありがとうございます", en: "Thank you very much" },
-        { romaji: "Hai / Iie", jp: "はい / いいえ", en: "Yes / No" },
-        { romaji: "Wakarimasen", jp: "わかりません", en: "I don't understand" },
+        { romaji: "Toire wa doko desu ka?", jp: "トイレはどこですか？", en: "Where is the restroom?" },
+        { romaji: "Eigo ga hanasemasu ka?", jp: "英語が話せますか？", en: "Can you speak English?" },
         { romaji: "Tasukete itadakemasu ka?", jp: "助けていただけますか？", en: "Could you please help me?" }
       ],
       transportation: [
         { romaji: "~ wa doko desu ka?", jp: "〜はどこですか？", en: "Where is ~?" },
         { romaji: "Kono densha wa ~ ni ikimasu ka?", jp: "この電車は〜に行きますか？", en: "Does this train go to ~?" },
+        { romaji: "Shinjuku-eki ni ikitai desu", jp: "新宿駅に行きたいです", en: "I want to go to Shinjuku Station" },
         { romaji: "Kippu uriba", jp: "切符売り場", en: "Ticket counter / office" },
         { romaji: "Taxi noriba wa doko desu ka?", jp: "タクシー乗り場はどこですか？", en: "Where is the taxi stand?" }
       ],
       konbini: [
         { romaji: "Fukuro wa kekkou desu", jp: "袋は結構です", en: "No plastic bag needed, thanks" },
         { romaji: "Atatame onegai shimasu", jp: "温めお願いします", en: "Please heat this up (bento)" },
-        { romaji: "Suica de sharaimasu", jp: "Suicaで払います", en: "I'll pay with Suica / IC card" },
+        { romaji: "Suica de onegai shimasu", jp: "Suicaでお願いします", en: "I'll pay with Suica / IC card" },
+        { romaji: "Toire wo karitemo ii desu ka?", jp: "トイレを借りてもいいですか？", en: "May I use the restroom?" },
         { romaji: "Spoon / O-hashi onegai shimasu", jp: "スプーン / お箸お願いします", en: "Spoon / Chopsticks please" }
       ],
       restaurant: [
         { romaji: "Hitori / Futari desu", jp: "1人 / 2人です", en: "1 person / 2 people" },
         { romaji: "Eigo no menu wa arimasu ka?", jp: "英語のメニューはありますか？", en: "Do you have an English menu?" },
         { romaji: "Kore onegai shimasu", jp: "これお願いします", en: "This one, please (pointing)" },
-        { romaji: "O-mizu onegai shimasu", jp: "お水お願いします", en: "Water, please" },
+        { romaji: "O-susume wa nan desu ka?", jp: "おすすめは何ですか？", en: "What do you recommend?" },
         { romaji: "O-kaikei onegai shimasu", jp: "お会計お願いします", en: "Check / Bill, please" }
       ],
       shopping: [
         { romaji: "Kore wa ikura desu ka?", jp: "これはおいくらですか？", en: "How much is this?" },
         { romaji: "Shichaku shitemo ii desu ka?", jp: "試着してもいいですか？", en: "Can I try this on?" },
+        { romaji: "Atarashii mono wa arimasu ka?", jp: "新しいものはありますか？", en: "Do you have an unopened/new one?" },
         { romaji: "Menzei deki masu ka?", jp: "免税できますか？", en: "Is tax-free available?" },
-        { romaji: "Card de sharaimasu", jp: "カードで払います", en: "I'll pay by credit card" }
+        { romaji: "Card de onegai shimasu", jp: "カードでお願いします", en: "I'll pay by credit card" }
       ]
     };
 
