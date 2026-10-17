@@ -54,7 +54,7 @@
     h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
     p { font-size: 13px; color: var(--text-muted); }
 
-    input, select {
+    input {
       width: 100%;
       padding: 12px;
       margin: 8px 0;
@@ -64,6 +64,26 @@
       font-family: inherit;
       outline: none;
       background-color: #ffffff;
+    }
+
+    /* CUSTOM BALANCED DROPDOWN */
+    select {
+      width: 100%;
+      padding: 12px 40px 12px 16px;
+      margin: 8px 0;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background-color: #ffffff;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 16px;
+      cursor: pointer;
     }
 
     input:focus, select:focus { border-color: var(--primary); }
@@ -132,17 +152,23 @@
       padding: 2px 6px;
     }
 
-    /* PHRASE CARDS */
+    /* PHRASE CARDS WITH BIG JAPANESE CHARACTERS */
     .phrase-card {
       background: #f8fafc;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 8px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      margin-bottom: 10px;
       border: 1px solid var(--border);
     }
-    .phrase-jp { font-weight: 700; color: var(--primary); font-size: 15px; }
-    .phrase-romaji { font-size: 12px; color: var(--text-muted); }
-    .phrase-en { font-size: 13px; margin-top: 4px; }
+    .phrase-jp { 
+      font-weight: 700; 
+      color: var(--primary); 
+      font-size: 22px; 
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .phrase-romaji { font-size: 13px; color: var(--text-muted); }
+    .phrase-en { font-size: 13px; margin-top: 4px; font-weight: 600; color: var(--text); }
 
     /* SEASON BUTTONS */
     .season-btn {
@@ -247,7 +273,7 @@
         </div>
       </div>
 
-      <!-- TAB 3: ESSENTIAL PHRASES WITH CATEGORY DROPDOWN -->
+      <!-- TAB 3: ESSENTIAL PHRASES -->
       <div id="tab-phrases" class="hidden">
         <h3>🗣️ Emergency Phrasebook</h3>
         <p style="margin-bottom:10px;">Select a situation category for instant communication.</p>
@@ -278,17 +304,14 @@
           <button class="season-btn" onclick="selectSeason('winter', event)">❄️ Winter</button>
         </div>
 
-        <!-- PACKING CONTENT AREA (HIDDEN UNTIL A SEASON IS SELECTED) -->
+        <!-- PACKING CONTENT AREA -->
         <div id="packing-content" class="hidden">
-          <!-- YEAR-ROUND ESSENTIALS -->
           <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px;">Year-Round Essentials</h4>
           <div id="essentials-list"></div>
 
-          <!-- SEASON SPECIFIC ITEMS -->
           <h4 style="font-size:13px; color:var(--primary); margin-top:16px; margin-bottom:8px;" id="season-title">Seasonal Items</h4>
           <div id="seasonal-list"></div>
 
-          <!-- PERSONAL ITEMS SECTION -->
           <h4 style="font-size:13px; color:var(--primary); margin-top:16px; margin-bottom:8px;">My Personal Items</h4>
           <div style="display:flex; gap:6px; margin-bottom:12px;">
             <input type="text" id="custom-item-input" placeholder="e.g. Camera battery, skincare..." style="margin:0;">
@@ -304,46 +327,45 @@
   </div>
 
   <script>
-    // 1. Google Sheet Setup
     const SHEET_ID = "1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg";
     const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
     let userActivities = [];
     let currentSeason = null;
 
-    // PHRASE CATEGORIES DATA (3-5 examples per category)
+    // POLITE PHRASE DATA (No "kudasai", using "onegai shimasu" / "itadakemasu ka?")
     const PHRASE_DATA = {
       general: [
-        { jp: "Sumimasen", romaji: "すみません", en: "Excuse me / Sorry" },
-        { jp: "Arigatou gozaimasu", romaji: "ありがとうございます", en: "Thank you very much" },
-        { jp: "Hai / Iie", romaji: "はい / いいえ", en: "Yes / No" },
-        { jp: "Wakarimasen", romaji: "わかりません", en: "I don't understand" },
-        { jp: "Tasukete kudasai", romaji: "助けてください", en: "Please help me!" }
+        { romaji: "Sumimasen", jp: "すみません", en: "Excuse me / Sorry" },
+        { romaji: "Arigatou gozaimasu", jp: "ありがとうございます", en: "Thank you very much" },
+        { romaji: "Hai / Iie", jp: "はい / いいえ", en: "Yes / No" },
+        { romaji: "Wakarimasen", jp: "わかりません", en: "I don't understand" },
+        { romaji: "Tasukete itadakemasu ka?", jp: "助けていただけますか？", en: "Could you please help me?" }
       ],
       transportation: [
-        { jp: "~ wa doko desu ka?", romaji: "〜はどこですか？", en: "Where is ~?" },
-        { jp: "Kono densha wa ~ ni ikimasu ka?", romaji: "この電車は〜に行きますか？", en: "Does this train go to ~?" },
-        { jp: "Kippu uriba", romaji: "切符売り場", en: "Ticket counter / office" },
-        { jp: "Taxi noriba wa doko desu ka?", romaji: "タクシー乗り場はどこですか？", en: "Where is the taxi stand?" }
+        { romaji: "~ wa doko desu ka?", jp: "〜はどこですか？", en: "Where is ~?" },
+        { romaji: "Kono densha wa ~ ni ikimasu ka?", jp: "この電車は〜に行きますか？", en: "Does this train go to ~?" },
+        { romaji: "Kippu uriba", jp: "切符売り場", en: "Ticket counter / office" },
+        { romaji: "Taxi noriba wa doko desu ka?", jp: "タクシー乗り場はどこですか？", en: "Where is the taxi stand?" }
       ],
       konbini: [
-        { jp: "Fukuro wa kekkou desu", romaji: "袋は結構です", en: "No plastic bag needed, thanks" },
-        { jp: "Atatame kudasai", romaji: "温めてください", en: "Please heat this up (bento)" },
-        { jp: "Suica de sharaimasu", romaji: "Suicaで払います", en: "I'll pay with Suica / IC card" },
-        { jp: "Spoon / Hashi kudasai", romaji: "スプーン / お箸ください", en: "Spoon / Chopsticks please" }
+        { romaji: "Fukuro wa kekkou desu", jp: "袋は結構です", en: "No plastic bag needed, thanks" },
+        { romaji: "Atatame onegai shimasu", jp: "温めお願いします", en: "Please heat this up (bento)" },
+        { romaji: "Suica de sharaimasu", jp: "Suicaで払います", en: "I'll pay with Suica / IC card" },
+        { romaji: "Spoon / O-hashi onegai shimasu", jp: "スプーン / お箸お願いします", en: "Spoon / Chopsticks please" }
       ],
       restaurant: [
-        { jp: "Hitori / Futari desu", romaji: "1人 / 2人です", en: "1 person / 2 people" },
-        { jp: "Eigo no menu wa arimasu ka?", romaji: "英語のメニューはありますか？", en: "Do you have an English menu?" },
-        { jp: "Kore kudasai", romaji: "これください", en: "This one, please (pointing)" },
-        { jp: "O-mizu kudasai", romaji: "お水ください", en: "Water, please" },
-        { jp: "O-kaikei kudasai", romaji: "お会計ください", en: "Check / Bill, please" }
+        { romaji: "Hitori / Futari desu", jp: "1人 / 2人です", en: "1 person / 2 people" },
+        { romaji: "Eigo no menu wa arimasu ka?", jp: "英語のメニューはありますか？", en: "Do you have an English menu?" },
+        { romaji: "Kore onegai shimasu", jp: "これお願いします", en: "This one, please (pointing)" },
+        { romaji: "O-mizu onegai shimasu", jp: "お水お願いします", en: "Water, please" },
+        { romaji: "O-kaikei onegai shimasu", jp: "お会計お願いします", en: "Check / Bill, please" }
       ],
       shopping: [
-        { jp: "Kore wa ikura desu ka?", romaji: "これはおいくらですか？", en: "How much is this?" },
-        { jp: "Shichaku shitemo ii desu ka?", romaji: "試着してもいいですか？", en: "Can I try this on?" },
-        { jp: "Menzei deki masu ka?", romaji: "免税できますか？", en: "Is tax-free available?" },
-        { jp: "Card de sharaimasu", romaji: "カードで払います", en: "I'll pay by credit card" }
+        { romaji: "Kore wa ikura desu ka?", jp: "これはおいくらですか？", en: "How much is this?" },
+        { romaji: "Shichaku shitemo ii desu ka?", jp: "試着してもいいですか？", en: "Can I try this on?" },
+        { romaji: "Menzei deki masu ka?", jp: "免税できますか？", en: "Is tax-free available?" },
+        { romaji: "Card de sharaimasu", jp: "カードで払います", en: "I'll pay by credit card" }
       ]
     };
 
@@ -456,7 +478,6 @@
       renderPhraseCategory();
     }
 
-    // DIY ITINERARY STORAGE LOGIC
     function loadActivities() {
       const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       const saved = localStorage.getItem("diyItinerary_" + activeCode);
@@ -510,7 +531,6 @@
       });
     }
 
-    // TAB SWITCHING LOGIC (Hides ALL other tabs completely)
     function switchTab(tabName, evt) {
       document.getElementById("tab-itinerary").classList.add("hidden");
       document.getElementById("tab-converter").classList.add("hidden");
@@ -526,7 +546,6 @@
       }
     }
 
-    // PHRASE CATEGORY RENDER LOGIC
     function renderPhraseCategory() {
       const select = document.getElementById("phrase-category-select");
       const categoryKey = select ? select.value : "general";
@@ -544,10 +563,8 @@
       }
     }
 
-    // PACKING LIST LOGIC
     function selectSeason(season, evt) {
       currentSeason = season;
-      
       document.querySelectorAll(".season-btn").forEach(btn => btn.classList.remove("active"));
       if (evt && evt.target) evt.target.classList.add("active");
 
@@ -561,7 +578,6 @@
       const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
       const savedChecks = JSON.parse(localStorage.getItem("packingChecks_" + activeCode) || "{}");
 
-      // 1. Essentials
       const essentialsDiv = document.getElementById("essentials-list");
       if (essentialsDiv) {
         essentialsDiv.innerHTML = YEAR_ROUND_ITEMS.map((item, idx) => {
@@ -576,7 +592,6 @@
         }).join('');
       }
 
-      // 2. Seasonal
       const seasonalDiv = document.getElementById("seasonal-list");
       const seasonTitle = document.getElementById("season-title");
       if (seasonalDiv) {
@@ -595,7 +610,6 @@
         }).join('');
       }
 
-      // 3. Custom Items
       const customDiv = document.getElementById("custom-packing-list");
       if (customDiv) {
         const customItems = JSON.parse(localStorage.getItem("customPacking_" + activeCode) || "[]");
@@ -658,7 +672,6 @@
       renderPackingList();
     }
 
-    // CONVERTER LOGIC
     function convertCurrency() {
       const rate = parseFloat(document.getElementById("jpy-rate").value) || 0;
       const jpy = parseFloat(document.getElementById("jpy-input").value) || 0;
