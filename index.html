@@ -6,6 +6,7 @@
   <title>Pocket Travel Companion</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* CSS REMAINS THE SAME */
     :root {
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
@@ -103,7 +104,6 @@
     .hidden { display: none !important; }
     .error-msg { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; }
 
-    /* ALL 5 TABS VISIBLE MOBILE NAV BAR */
     .nav-tabs {
       display: flex;
       background: #e2e8f0;
@@ -136,7 +136,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    /* ITINERARY CARDS */
     .activity-card {
       background: #f8fafc;
       border-left: 4px solid var(--primary);
@@ -147,12 +146,7 @@
       transition: border-color 0.2s;
     }
 
-    .activity-meta {
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-
+    .activity-meta { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
     .activity-title { font-size: 15px; font-weight: 700; color: var(--text); }
     .activity-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
@@ -167,7 +161,6 @@
       padding: 2px 6px;
     }
 
-    /* EXPENSE CARDS & DAY SUMMARIES */
     .expense-card {
       background: #ffffff;
       border-left: 3px solid var(--primary);
@@ -175,9 +168,7 @@
       border-radius: 8px;
       margin-bottom: 8px;
       position: relative;
-      border-top: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      border: 1px solid var(--border);
     }
 
     .day-summary-card {
@@ -200,7 +191,6 @@
     .day-summary-title { font-weight: 700; font-size: 14px; color: #1e40af; }
     .day-summary-total { font-weight: 700; font-size: 14px; color: var(--primary); }
 
-    /* PHRASE CARDS */
     .phrase-card {
       background: #f8fafc;
       padding: 12px 14px;
@@ -208,21 +198,10 @@
       margin-bottom: 8px;
       border: 1px solid var(--border);
     }
-    .phrase-jp { 
-      font-weight: 700; 
-      color: var(--primary); 
-      font-size: 20px; 
-      line-height: 1.3;
-      margin-bottom: 3px;
-    }
-    .phrase-romaji { 
-      font-size: 14px; 
-      font-weight: 600;
-      color: #475569; 
-    }
+    .phrase-jp { font-weight: 700; color: var(--primary); font-size: 20px; line-height: 1.3; margin-bottom: 3px; }
+    .phrase-romaji { font-size: 14px; font-weight: 600; color: #475569; }
     .phrase-en { font-size: 13px; margin-top: 3px; font-weight: 600; color: var(--text); }
 
-    /* SEASON BUTTONS */
     .season-btn {
       flex: 1;
       background: #f1f5f9;
@@ -235,13 +214,8 @@
       cursor: pointer;
     }
 
-    .season-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
+    .season-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    /* CHECKLIST ITEMS */
     .checklist-item {
       display: flex;
       align-items: center;
@@ -255,18 +229,8 @@
       cursor: pointer;
     }
 
-    .checklist-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--primary);
-      cursor: pointer;
-      margin: 0;
-    }
-
-    .checklist-item.checked span {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
+    .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0; }
+    .checklist-item.checked span { text-decoration: line-through; color: var(--text-muted); }
 
     .cat-badge {
       display: inline-block;
@@ -279,14 +243,6 @@
       margin-left: 6px;
     }
   </style>
-
-  <!-- PWA & Mobile Home Screen Meta Tags -->
-<meta name="theme-color" content="#2563eb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Japan DIY">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/201/201623.png">
-<link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -295,7 +251,7 @@
     <div id="lock-screen" class="card" style="text-align: center;">
       <span class="header-badge">Pro Travel Tool</span>
       <h2>Unlock Your Planner</h2>
-      <p>Type your activation passcode to build & store your offline itinerary.</p>
+      <p>Type your activation passcode to build & sync your travel itinerary.</p>
       <input type="text" id="passcode-input" placeholder="e.g. TRAVEL2026">
       <button id="unlock-btn" onclick="checkPasscode()">Unlock App</button>
       <p id="error-message" class="error-msg"></p>
@@ -303,7 +259,6 @@
 
     <!-- MAIN DIY APP -->
     <div id="app-content" class="card hidden">
-      <!-- ALL 5 TABS VISIBLE AT ONCE -->
       <div class="nav-tabs">
         <button class="nav-btn active" onclick="switchTab('itinerary', event)">
           <span class="tab-icon">🗓️</span>
@@ -323,16 +278,15 @@
         </button>
         <button class="nav-btn" onclick="switchTab('packing', event)">
           <span class="tab-icon">🧳</span>
-          <span>Packing</span>
+          <span>Prep/Pack</span>
         </button>
       </div>
 
       <!-- TAB 1: DIY ITINERARY BUILDER -->
       <div id="tab-itinerary">
         <h3>📍 My Custom Itinerary</h3>
-        <p style="margin-bottom:12px;">Add your personal schedule below. Saved offline!</p>
+        <p style="margin-bottom:12px;">Add your schedule below. Auto-syncs across devices!</p>
 
-        <!-- ADD ACTIVITY FORM -->
         <div style="background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:16px;">
           <input type="text" id="act-date" placeholder="Day / Date (e.g. Day 1 - Nov 10)">
           <input type="text" id="act-time" placeholder="Time (e.g. 09:00 AM)">
@@ -347,15 +301,13 @@
       <!-- TAB 2: EXPENSE TRACKER -->
       <div id="tab-expense" class="hidden">
         <h3>💰 Daily Expense Tracker</h3>
-        <p style="margin-bottom:12px;">Log your purchases in Yen. Daily totals calculate automatically!</p>
+        <p style="margin-bottom:12px;">Log purchases in Yen. Daily totals calculate automatically!</p>
 
-        <!-- GRAND TOTAL HEADER -->
         <div style="background:var(--accent); padding:14px; border-radius:12px; text-align:center; margin-bottom:14px; border:1px solid #bfdbfe;">
           <small style="color:var(--text-muted); font-size:12px; font-weight:700;">TOTAL TRIP EXPENSE</small>
           <h2 id="grand-total-jpy" style="color:var(--primary); margin-top:2px; font-size:24px;">¥0</h2>
         </div>
 
-        <!-- ADD EXPENSE FORM -->
         <div style="background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:16px;">
           <input type="text" id="exp-date" placeholder="Date / Day (e.g. Day 1 - Nov 10)">
           <input type="text" id="exp-name" placeholder="Item (e.g. Ichiran Ramen)">
@@ -397,7 +349,6 @@
         <h3>🗣️ Emergency Phrasebook</h3>
         <p style="margin-bottom:10px;">Select a situation category for instant communication.</p>
 
-        <!-- CATEGORY DROPDOWN -->
         <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Select Category:</label>
         <select id="phrase-category-select" onchange="renderPhraseCategory()" style="margin-bottom:14px;">
           <option value="general">🌐 General / Basics</option>
@@ -410,12 +361,18 @@
         <div id="phrase-list"></div>
       </div>
 
-      <!-- TAB 5: SMART PACKING CHECKLIST -->
+      <!-- TAB 5: SMART PACKING CHECKLIST (UPDATED) -->
       <div id="tab-packing" class="hidden">
-        <h3>🧳 Japan Packing Checklist</h3>
-        <p style="margin-bottom:12px;">Select your travel season to customize your list.</p>
+        <h3>✈️ Pre-Departure & Packing</h3>
+        
+        <!-- NEW BEFORE YOU FLY SECTION -->
+        <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; margin-top:10px; font-weight:700;">Before You Fly Checklist</h4>
+        <div id="pre-departure-list" style="margin-bottom: 18px;"></div>
+        
+        <!-- PACKING SECTION -->
+        <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; font-weight:700;">Japan Luggage Checklist</h4>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Select your travel season to customize your list.</p>
 
-        <!-- SEASON SELECTOR BUTTONS -->
         <div style="display:flex; gap:6px; margin-bottom:14px;">
           <button class="season-btn" onclick="selectSeason('spring', event)">🌸 Spring</button>
           <button class="season-btn" onclick="selectSeason('summer', event)">☀️ Summer</button>
@@ -423,7 +380,6 @@
           <button class="season-btn" onclick="selectSeason('winter', event)">❄️ Winter</button>
         </div>
 
-        <!-- PACKING CONTENT AREA -->
         <div id="packing-content" class="hidden">
           <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; font-weight:700;">Year-Round Essentials</h4>
           <div id="essentials-list"></div>
@@ -530,10 +486,21 @@
       ]
     };
 
+    // NEW BEFORE YOU FLY DATA
+    const PRE_DEPARTURE_ITEMS = [
+      "Submit 'Visit Japan Web' for Immigration/Customs QR",
+      "Check Passport validity (minimum 6 months)",
+      "Buy/Activate eSIM or book Pocket Wi-Fi",
+      "Exchange some IDR to JPY Cash locally",
+      "Add Digital Suica/Pasmo to Apple Wallet (iPhone only)",
+      "Download offline Google Maps for Tokyo/Osaka",
+      "Purchase Universal Travel Adapter (Type A)"
+    ];
+
     const YEAR_ROUND_ITEMS = [
       "Passport & Flight Tickets",
       "Yen Cash & Coin Purse (Coins are heavy in Japan!)",
-      "Suica / Pasmo / IC Card",
+      "Physical Suica / Pasmo / IC Card",
       "Pocket Wi-Fi or e-SIM",
       "Universal Power Adapter (Japan uses Type A / 2-pin)",
       "Power Bank (Portable Charger)",
@@ -661,7 +628,7 @@
 
         renderActivities();
         renderExpenses();
-        renderPackingList();
+        renderPackingList(); // This now renders both Pre-Departure & Packing lists
       }, (error) => {
         console.error("Firebase sync error:", error);
       });
@@ -821,6 +788,22 @@
     }
 
     function renderPackingList() {
+      // 1. RENDER PRE-DEPARTURE ITEMS (Always visible)
+      const preDepDiv = document.getElementById("pre-departure-list");
+      if (preDepDiv) {
+        preDepDiv.innerHTML = PRE_DEPARTURE_ITEMS.map((item, idx) => {
+          const id = "predep_" + idx; // Unique ID for Firebase
+          const isChecked = packingChecks[id] ? "checked" : "";
+          return `
+            <label class="checklist-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+              <span>${item}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      // 2. RENDER SEASONAL & CUSTOM PACKING (Only if a season is selected)
       if (!currentSeason) return;
 
       const essentialsDiv = document.getElementById("essentials-list");
