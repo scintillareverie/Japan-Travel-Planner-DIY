@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pocket Travel Companion</title>
+  <title>Japan Pocket Planner | Scintilla-Reverie</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     /* CSS REMAINS THE SAME */
@@ -259,6 +259,23 @@
 
     <!-- MAIN DIY APP -->
     <div id="app-content" class="card hidden">
+      <!-- AESTHETIC TYPOGRAPHY HEADER (OFFLINE SAFE) -->
+      <div style="background: linear-gradient(135deg, #2563eb, #8b5cf6); border-radius: 14px; padding: 22px 18px; margin-bottom: 16px; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+        <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">🇯🇵 Pocket Planner</span>
+        <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0; letter-spacing: -0.5px;">Japan Travel Hub</h1>
+        <p style="font-size: 13px; margin: 0; opacity: 0.9;">Real-time sync across your devices</p>
+      </div>
+      </div>
+    <!-- TRIP COUNTDOWN BANNER -->
+      <div style="background: #ffffff; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+        <div>
+          <small style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Trip Departure</small>
+          <div id="countdown-display" style="font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 2px;">
+            ✈️ Select flight date
+          </div>
+        </div>
+        <input type="date" id="trip-date-input" onchange="updateTripDate()" style="width: auto; padding: 6px 10px; font-size: 12px; margin: 0;">
+      </div>
       <div class="nav-tabs">
         <button class="nav-btn active" onclick="switchTab('itinerary', event)">
           <span class="tab-icon">🗓️</span>
@@ -359,6 +376,36 @@
         </select>
 
         <div id="phrase-list"></div>
+
+        <!-- EMERGENCY SOS CARD -->
+        <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 14px; padding: 14px; margin-top: 18px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 18px;">🚨</span>
+            <h4 style="font-size: 14px; font-weight: 700; color: #dc2626; margin: 0;">Japan Emergency Contacts (24/7)</h4>
+          </div>
+          <p style="font-size: 12px; color: #7f1d1d; margin-bottom: 10px;">Tap any button below to place an emergency call in Japan.</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <a href="tel:110" style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px; text-decoration: none; text-align: center; display: block;">
+              <div style="font-size: 10px; color: #991b1b; font-weight: 700;">POLICE (Keisatsu)</div>
+              <div style="font-size: 15px; font-weight: 700; color: #dc2626; margin-top: 2px;">📞 110</div>
+            </a>
+            <a href="tel:119" style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px; text-decoration: none; text-align: center; display: block;">
+              <div style="font-size: 10px; color: #991b1b; font-weight: 700;">AMBULANCE / FIRE</div>
+              <div style="font-size: 15px; font-weight: 700; color: #dc2626; margin-top: 2px;">📞 119</div>
+            </a>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px; margin-bottom: 8px;">
+            <div style="font-size: 10px; color: #991b1b; font-weight: 700; margin-bottom: 2px;">JNTO TOURIST HOTLINE (English 24/7)</div>
+            <a href="tel:05038162720" style="font-size: 13px; font-weight: 700; color: #dc2626; text-decoration: none;">📞 050-3816-2720</a>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px;">
+            <div style="font-size: 10px; color: #991b1b; font-weight: 700; margin-bottom: 2px;">KBRI TOKYO (Indonesian Embassy Hotline)</div>
+            <a href="tel:+818035068612" style="font-size: 13px; font-weight: 700; color: #dc2626; text-decoration: none;">📞 +81-80-3506-8612</a>
+          </div>
+        </div>
       </div>
 
       <!-- TAB 5: SMART PACKING CHECKLIST (UPDATED) -->
