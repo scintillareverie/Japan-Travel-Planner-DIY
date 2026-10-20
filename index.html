@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Japan Pocket Planner | Scintilla-Reverie</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Japan Travel Hub | Pro Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* CSS REMAINS THE SAME */
     :root {
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
@@ -259,23 +258,33 @@
 
     <!-- MAIN DIY APP -->
     <div id="app-content" class="card hidden">
-      <!-- AESTHETIC TYPOGRAPHY HEADER (OFFLINE SAFE) -->
-      <div style="background: linear-gradient(135deg, #2563eb, #8b5cf6); border-radius: 14px; padding: 22px 18px; margin-bottom: 16px; color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
-        <span style="display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;">🇯🇵 Pocket Planner</span>
-        <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0; letter-spacing: -0.5px;">Japan Travel Hub</h1>
-        <p style="font-size: 13px; margin: 0; opacity: 0.9;">Real-time sync across your devices</p>
+      
+      <!-- HIGH CONTRAST AESTHETIC HEADER -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e40af 100%); border-radius: 16px; padding: 20px 18px; margin-bottom: 14px; color: #ffffff; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25); border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;">
+        <div style="position: absolute; right: -15px; top: -15px; font-size: 80px; opacity: 0.12; user-select: none; pointer-events: none;">🎌</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(4px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.25);">
+            🇯🇵 Japan Travel Hub
+          </span>
+          <span style="font-size: 11px; color: #93c5fd; font-weight: 600;">Real-Time Sync</span>
+        </div>
+        <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.5px;">My Japan Companion</h1>
+        <p style="font-size: 12.5px; margin: 0; color: #cbd5e1; font-weight: 500;">Itinerary • Expense • Currency • SOS</p>
       </div>
-      </div>
-    <!-- TRIP COUNTDOWN BANNER -->
-      <div style="background: #ffffff; border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-        <div>
-          <small style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Trip Departure</small>
-          <div id="countdown-display" style="font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 2px;">
+
+      <!-- TRIP COUNTDOWN BANNER -->
+      <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <div style="flex: 1;">
+          <small style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Flight Departure</small>
+          <div id="countdown-display" style="font-size: 15px; font-weight: 700; color: #2563eb;">
             ✈️ Select flight date
           </div>
         </div>
-        <input type="date" id="trip-date-input" onchange="updateTripDate()" style="width: auto; padding: 6px 10px; font-size: 12px; margin: 0;">
+        <input type="date" id="trip-date-input" onchange="updateTripDate()" style="width: auto; padding: 7px 10px; font-size: 12px; margin: 0; border: 1.5px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #0f172a; background-color: #f8fafc; cursor: pointer;">
       </div>
+
+      <!-- NAVIGATION TABS -->
       <div class="nav-tabs">
         <button class="nav-btn active" onclick="switchTab('itinerary', event)">
           <span class="tab-icon">🗓️</span>
@@ -361,7 +370,7 @@
         </div>
       </div>
 
-      <!-- TAB 4: ESSENTIAL PHRASES -->
+      <!-- TAB 4: ESSENTIAL PHRASES & SOS -->
       <div id="tab-phrases" class="hidden">
         <h3>🗣️ Emergency Phrasebook</h3>
         <p style="margin-bottom:10px;">Select a situation category for instant communication.</p>
@@ -408,15 +417,13 @@
         </div>
       </div>
 
-      <!-- TAB 5: SMART PACKING CHECKLIST (UPDATED) -->
+      <!-- TAB 5: SMART PACKING CHECKLIST -->
       <div id="tab-packing" class="hidden">
         <h3>✈️ Pre-Departure & Packing</h3>
         
-        <!-- NEW BEFORE YOU FLY SECTION -->
         <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; margin-top:10px; font-weight:700;">Before You Fly Checklist</h4>
         <div id="pre-departure-list" style="margin-bottom: 18px;"></div>
         
-        <!-- PACKING SECTION -->
         <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; font-weight:700;">Japan Luggage Checklist</h4>
         <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Select your travel season to customize your list.</p>
 
@@ -474,6 +481,7 @@
     let userExpenses = [];
     let packingChecks = {};
     let customPacking = [];
+    let tripDate = "";
     let currentSeason = null;
     let unsubscribeFirestore = null;
 
@@ -533,7 +541,6 @@
       ]
     };
 
-    // NEW BEFORE YOU FLY DATA
     const PRE_DEPARTURE_ITEMS = [
       "Submit 'Visit Japan Web' for Immigration/Customs QR",
       "Check Passport validity (minimum 6 months)",
@@ -666,16 +673,19 @@
           userExpenses = data.userExpenses || [];
           packingChecks = data.packingChecks || {};
           customPacking = data.customPacking || [];
+          tripDate = data.tripDate || "";
         } else {
           userActivities = [];
           userExpenses = [];
           packingChecks = {};
           customPacking = [];
+          tripDate = "";
         }
 
         renderActivities();
         renderExpenses();
-        renderPackingList(); // This now renders both Pre-Departure & Packing lists
+        renderPackingList();
+        renderCountdown();
       }, (error) => {
         console.error("Firebase sync error:", error);
       });
@@ -689,11 +699,64 @@
           userActivities,
           userExpenses,
           packingChecks,
-          customPacking
+          customPacking,
+          tripDate
         }, { merge: true });
       } catch (err) {
         console.error("Failed to save to cloud:", err);
       }
+    }
+
+    function renderCountdown() {
+      const display = document.getElementById("countdown-display");
+      const dateInput = document.getElementById("trip-date-input");
+
+      if (dateInput && dateInput.value !== tripDate) {
+        dateInput.value = tripDate || "";
+      }
+
+      if (!display) return;
+
+      if (!tripDate) {
+        display.innerText = "✈️ Select flight date";
+        display.style.color = "#2563eb";
+        return;
+      }
+
+      const parts = tripDate.split("-");
+      if (parts.length !== 3) {
+        display.innerText = "✈️ Select flight date";
+        return;
+      }
+
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      const target = new Date(year, month, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const diffTime = target - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        display.innerText = `⏳ ${diffDays} Days Until Japan!`;
+        display.style.color = "#2563eb";
+      } else if (diffDays === 0) {
+        display.innerText = "🎌 Today is Japan Day!";
+        display.style.color = "#16a34a";
+      } else {
+        display.innerText = "🌸 Trip Completed!";
+        display.style.color = "#64748b";
+      }
+    }
+
+    function updateTripDate() {
+      const input = document.getElementById("trip-date-input");
+      tripDate = input ? input.value : "";
+      renderCountdown();
+      saveToFirebase();
     }
 
     function addActivity() {
@@ -835,11 +898,10 @@
     }
 
     function renderPackingList() {
-      // 1. RENDER PRE-DEPARTURE ITEMS (Always visible)
       const preDepDiv = document.getElementById("pre-departure-list");
       if (preDepDiv) {
         preDepDiv.innerHTML = PRE_DEPARTURE_ITEMS.map((item, idx) => {
-          const id = "predep_" + idx; // Unique ID for Firebase
+          const id = "predep_" + idx;
           const isChecked = packingChecks[id] ? "checked" : "";
           return `
             <label class="checklist-item ${isChecked ? 'checked' : ''}">
@@ -850,7 +912,6 @@
         }).join('');
       }
 
-      // 2. RENDER SEASONAL & CUSTOM PACKING (Only if a season is selected)
       if (!currentSeason) return;
 
       const essentialsDiv = document.getElementById("essentials-list");
@@ -989,6 +1050,7 @@
     window.switchTab = switchTab;
     window.renderPhraseCategory = renderPhraseCategory;
     window.convertCurrency = convertCurrency;
+    window.updateTripDate = updateTripDate;
     window.lockApp = lockApp;
   </script>
 </body>
