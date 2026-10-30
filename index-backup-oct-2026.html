@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Japan Travel Hub | Pro Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #eff6ff;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 14px;
+      min-height: 100vh;
+    }
+
+    .container { width: 100%; max-width: 480px; }
+
+    .card {
+      background: var(--card-bg);
+      padding: 18px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+      margin-bottom: 14px;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    h3 { font-size: 19px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    p { font-size: 13.5px; color: var(--text-muted); line-height: 1.4; }
+
+    input {
+      width: 100%;
+      padding: 11px 13px;
+      margin: 6px 0;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background-color: #ffffff;
+    }
+
+    select {
+      width: 100%;
+      padding: 11px 36px 11px 14px;
+      margin: 6px 0;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background-color: #ffffff;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 14px;
+      cursor: pointer;
+    }
+
+    input:focus, select:focus { border-color: var(--primary); }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 11px 13px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+    .error-msg { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; }
+
+    .nav-tabs {
+      display: flex;
+      background: #e2e8f0;
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 7px 2px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .nav-btn span.tab-icon { font-size: 16px; line-height: 1; }
+
+    .nav-btn.active {
+      background: var(--card-bg);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .activity-card {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .activity-meta { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+    .activity-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .activity-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    .delete-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: none;
+      color: #ef4444;
+      font-size: 13px;
+      width: auto;
+      padding: 2px 6px;
+    }
+
+    .expense-card {
+      background: #ffffff;
+      border-left: 3px solid var(--primary);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+
+    .day-summary-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .day-summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #93c5fd;
+    }
+
+    .day-summary-title { font-weight: 700; font-size: 14px; color: #1e40af; }
+    .day-summary-total { font-weight: 700; font-size: 14px; color: var(--primary); }
+
+    .phrase-card {
+      background: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+    }
+    .phrase-jp { font-weight: 700; color: var(--primary); font-size: 20px; line-height: 1.3; margin-bottom: 3px; }
+    .phrase-romaji { font-size: 14px; font-weight: 600; color: #475569; }
+    .phrase-en { font-size: 13px; margin-top: 3px; font-weight: 600; color: var(--text); }
+
+    .season-btn {
+      flex: 1;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 9px 2px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .season-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      border: 1px solid var(--border);
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+
+    .checklist-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; margin: 0; }
+    .checklist-item.checked span { text-decoration: line-through; color: var(--text-muted); }
+
+    .cat-badge {
+      display: inline-block;
+      background: #e2e8f0;
+      color: #475569;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- LOCK SCREEN -->
+    <div id="lock-screen" class="card" style="text-align: center;">
+      <span class="header-badge">Pro Travel Tool</span>
+      <h2>Unlock Your Planner</h2>
+      <p>Type your activation passcode to build & sync your travel itinerary.</p>
+      <input type="text" id="passcode-input" placeholder="e.g. TRAVEL2026">
+      <button id="unlock-btn" onclick="checkPasscode()">Unlock App</button>
+      <p id="error-message" class="error-msg"></p>
+    </div>
+
+    <!-- MAIN DIY APP -->
+    <div id="app-content" class="card hidden">
+      
+      <!-- HIGH CONTRAST AESTHETIC HEADER -->
+      <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e40af 100%); border-radius: 16px; padding: 20px 18px; margin-bottom: 14px; color: #ffffff; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25); border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;">
+        <div style="position: absolute; right: -15px; top: -15px; font-size: 80px; opacity: 0.12; user-select: none; pointer-events: none;">🎌</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(4px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.25);">
+            🇯🇵 DIGITAL KIT
+          </span>
+          <span style="font-size: 11px; color: #93c5fd; font-weight: 600;">✨ Pro Edition</span>
+        </div>
+        <h1 style="font-size: 21px; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">Japan Pocket Travel Companion</h1>
+        <p style="font-size: 12.5px; margin: 0; color: #cbd5e1; font-weight: 500;">Itinerary • Budget • Essentials</p>
+      </div>
+
+      <!-- TRIP COUNTDOWN BANNER -->
+      <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+        <div style="flex: 1;">
+          <small style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Flight Departure</small>
+          <div id="countdown-display" style="font-size: 15px; font-weight: 700; color: #2563eb;">
+            ✈️ Select flight date
+          </div>
+        </div>
+        <input type="date" id="trip-date-input" onchange="updateTripDate()" style="width: auto; padding: 7px 10px; font-size: 12px; margin: 0; border: 1.5px solid #cbd5e1; border-radius: 8px; font-weight: 600; color: #0f172a; background-color: #f8fafc; cursor: pointer;">
+      </div>
+
+      <!-- NAVIGATION TABS -->
+      <div class="nav-tabs">
+        <button class="nav-btn active" onclick="switchTab('itinerary', event)">
+          <span class="tab-icon">🗓️</span>
+          <span>Itinerary</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('expense', event)">
+          <span class="tab-icon">💰</span>
+          <span>Expense</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('converter', event)">
+          <span class="tab-icon">💴</span>
+          <span>Currency</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('phrases', event)">
+          <span class="tab-icon">🗣️</span>
+          <span>Phrases</span>
+        </button>
+        <button class="nav-btn" onclick="switchTab('packing', event)">
+          <span class="tab-icon">🧳</span>
+          <span>Prep/Pack</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: DIY ITINERARY BUILDER -->
+      <div id="tab-itinerary">
+        <h3>📍 My Custom Itinerary</h3>
+        <p style="margin-bottom:12px;">Add your schedule below. Auto-syncs across devices!</p>
+
+        <div style="background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:16px;">
+          <input type="text" id="act-date" placeholder="Day / Date (e.g. Day 1 - Nov 10)">
+          <input type="text" id="act-time" placeholder="Time (e.g. 09:00 AM)">
+          <input type="text" id="act-title" placeholder="Activity (e.g. Shibuya Sky)">
+          <input type="text" id="act-desc" placeholder="Notes / Train info">
+          <button onclick="addActivity()">+ Add to Itinerary</button>
+        </div>
+
+        <div id="itinerary-list"></div>
+      </div>
+
+      <!-- TAB 2: EXPENSE TRACKER -->
+      <div id="tab-expense" class="hidden">
+        <h3>💰 Daily Expense Tracker</h3>
+        <p style="margin-bottom:12px;">Log purchases in Yen. Daily totals calculate automatically!</p>
+
+        <div style="background:var(--accent); padding:14px; border-radius:12px; text-align:center; margin-bottom:14px; border:1px solid #bfdbfe;">
+          <small style="color:var(--text-muted); font-size:12px; font-weight:700;">TOTAL TRIP EXPENSE</small>
+          <h2 id="grand-total-jpy" style="color:var(--primary); margin-top:2px; font-size:24px;">¥0</h2>
+        </div>
+
+        <div style="background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:16px;">
+          <input type="text" id="exp-date" placeholder="Date / Day (e.g. Day 1 - Nov 10)">
+          <input type="text" id="exp-name" placeholder="Item (e.g. Ichiran Ramen)">
+          <input type="number" id="exp-price" placeholder="Price in Yen (¥ e.g. 1200)">
+          <select id="exp-category">
+            <option value="🍜 Food">🍜 Food</option>
+            <option value="🧋 Snacks & Drinks">🧋 Snacks & Drinks</option>
+            <option value="🚃 Transportation">🚃 Transportation</option>
+            <option value="🛍️ Shopping">🛍️ Shopping</option>
+            <option value="🎁 Souvenirs">🎁 Souvenirs</option>
+            <option value="🎟️ Tickets & Attractions">🎟️ Tickets & Attractions</option>
+            <option value="📦 Other / Misc">📦 Other / Misc</option>
+          </select>
+          <button onclick="addExpense()">+ Add Expense</button>
+        </div>
+
+        <div id="expense-list"></div>
+      </div>
+
+      <!-- TAB 3: CURRENCY CONVERTER -->
+      <div id="tab-converter" class="hidden">
+        <h3>💴 Quick Currency Converter</h3>
+        <p style="margin-bottom:12px;">Estimate Yen (JPY) to Indonesian Rupiah (IDR)</p>
+        
+        <label style="font-size:12px; font-weight:700; color:var(--text);">Rate (1 JPY in IDR):</label>
+        <input type="number" id="jpy-rate" value="105" oninput="convertCurrency()">
+
+        <label style="font-size:12px; font-weight:700; color:var(--text);">Price in Yen (¥):</label>
+        <input type="number" id="jpy-input" placeholder="e.g. 1500" oninput="convertCurrency()">
+
+        <div style="background:var(--accent); padding:16px; border-radius:12px; text-align:center; margin-top:10px;">
+          <small style="color:var(--text-muted); font-size:12px; font-weight:600;">Estimated Total:</small>
+          <h2 id="idr-result" style="color:var(--primary); margin-top:2px; font-size:24px;">Rp 0</h2>
+        </div>
+      </div>
+
+      <!-- TAB 4: ESSENTIAL PHRASES & SOS -->
+      <div id="tab-phrases" class="hidden">
+        <h3>🗣️ Emergency Phrasebook</h3>
+        <p style="margin-bottom:10px;">Select a situation category for instant communication.</p>
+
+        <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Select Category:</label>
+        <select id="phrase-category-select" onchange="renderPhraseCategory()" style="margin-bottom:14px;">
+          <option value="general">🌐 General / Basics</option>
+          <option value="transportation">🚃 Transportation & Trains</option>
+          <option value="konbini">🏪 Konbini (Convenience Store)</option>
+          <option value="restaurant">🍜 Restaurant & Dining</option>
+          <option value="shopping">🛍️ Shopping & Tax-Free</option>
+        </select>
+
+        <div id="phrase-list"></div>
+
+        <!-- EMERGENCY SOS CARD -->
+        <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 14px; padding: 14px; margin-top: 18px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span style="font-size: 18px;">🚨</span>
+            <h4 style="font-size: 14px; font-weight: 700; color: #dc2626; margin: 0;">Japan Emergency Contacts (24/7)</h4>
+          </div>
+          <p style="font-size: 12px; color: #7f1d1d; margin-bottom: 10px;">Tap any button below to place an emergency call in Japan.</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <a href="tel:110" style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px; text-decoration: none; text-align: center; display: block;">
+              <div style="font-size: 10px; color: #991b1b; font-weight: 700;">POLICE (Keisatsu)</div>
+              <div style="font-size: 15px; font-weight: 700; color: #dc2626; margin-top: 2px;">📞 110</div>
+            </a>
+            <a href="tel:119" style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px; text-decoration: none; text-align: center; display: block;">
+              <div style="font-size: 10px; color: #991b1b; font-weight: 700;">AMBULANCE / FIRE</div>
+              <div style="font-size: 15px; font-weight: 700; color: #dc2626; margin-top: 2px;">📞 119</div>
+            </a>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px; margin-bottom: 8px;">
+            <div style="font-size: 10px; color: #991b1b; font-weight: 700; margin-bottom: 2px;">JNTO TOURIST HOTLINE (English 24/7)</div>
+            <a href="tel:05038162720" style="font-size: 13px; font-weight: 700; color: #dc2626; text-decoration: none;">📞 050-3816-2720</a>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #fca5a5; padding: 10px; border-radius: 10px;">
+            <div style="font-size: 10px; color: #991b1b; font-weight: 700; margin-bottom: 2px;">KBRI TOKYO (Indonesian Embassy Hotline)</div>
+            <a href="tel:+818035068612" style="font-size: 13px; font-weight: 700; color: #dc2626; text-decoration: none;">📞 +81-80-3506-8612</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: SMART PACKING CHECKLIST -->
+      <div id="tab-packing" class="hidden">
+        <h3>✈️ Pre-Departure & Packing</h3>
+        
+        <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; margin-top:10px; font-weight:700;">Before You Fly Checklist</h4>
+        <div id="pre-departure-list" style="margin-bottom: 18px;"></div>
+        
+        <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; font-weight:700;">Japan Luggage Checklist</h4>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Select your travel season to customize your list.</p>
+
+        <div style="display:flex; gap:6px; margin-bottom:14px;">
+          <button class="season-btn" onclick="selectSeason('spring', event)">🌸 Spring</button>
+          <button class="season-btn" onclick="selectSeason('summer', event)">☀️ Summer</button>
+          <button class="season-btn" onclick="selectSeason('autumn', event)">🍁 Autumn</button>
+          <button class="season-btn" onclick="selectSeason('winter', event)">❄️ Winter</button>
+        </div>
+
+        <div id="packing-content" class="hidden">
+          <h4 style="font-size:13px; color:var(--primary); margin-bottom:8px; font-weight:700;">Year-Round Essentials</h4>
+          <div id="essentials-list"></div>
+
+          <h4 style="font-size:13px; color:var(--primary); margin-top:14px; margin-bottom:8px; font-weight:700;" id="season-title">Seasonal Items</h4>
+          <div id="seasonal-list"></div>
+
+          <h4 style="font-size:13px; color:var(--primary); margin-top:14px; margin-bottom:8px; font-weight:700;">My Personal Items</h4>
+          <div style="display:flex; gap:6px; margin-bottom:12px;">
+            <input type="text" id="custom-item-input" placeholder="e.g. Camera battery, skincare..." style="margin:0;">
+            <button onclick="addCustomPackingItem()" style="width:auto; padding:11px 16px; white-space:nowrap;">+ Add</button>
+          </div>
+          <div id="custom-packing-list"></div>
+        </div>
+      </div>
+
+      <br>
+      <button onclick="lockApp()" style="background-color: #f1f5f9; color: #ef4444;">Lock App</button>
+    </div>
+  </div>
+
+  <!-- FIREBASE SDK & APP LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // YOUR ACTUAL FIREBASE CONFIG KEYS
+    const firebaseConfig = {
+      apiKey: "AIzaSyDvmXSlzsQsbTDtb-MiFLlR3wlI6AqupjY",
+      authDomain: "japan-travel-planner-diy.firebaseapp.com",
+      projectId: "japan-travel-planner-diy",
+      storageBucket: "japan-travel-planner-diy.firebasestorage.app",
+      messagingSenderId: "170830880071",
+      appId: "1:170830880071:web:945a9a6c55a9a1ea7a8062"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Global variables
+    const SHEET_ID = "1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg";
+    const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+
+    let userActivities = [];
+    let userExpenses = [];
+    let packingChecks = {};
+    let customPacking = [];
+    let tripDate = "";
+    let currentSeason = null;
+    let unsubscribeFirestore = null;
+
+    const DAY_COLORS = [
+      { border: '#2563eb', text: '#2563eb' },
+      { border: '#ec4899', text: '#be185d' },
+      { border: '#8b5cf6', text: '#6d28d9' },
+      { border: '#10b981', text: '#047857' },
+      { border: '#f97316', text: '#c2410c' },
+      { border: '#14b8a6', text: '#0f766e' },
+      { border: '#f43f5e', text: '#be123c' },
+      { border: '#6366f1', text: '#4338ca' },
+      { border: '#d97706', text: '#b45309' },
+      { border: '#06b6d4', text: '#0e7490' },
+      { border: '#7c3aed', text: '#5b21b6' },
+      { border: '#65a30d', text: '#3f6212' },
+      { border: '#dc2626', text: '#991b1b' },
+      { border: '#0284c7', text: '#0369a1' },
+      { border: '#d946ef', text: '#a21caf' }
+    ];
+
+    const PHRASE_DATA = {
+      general: [
+        { romaji: "Sumimasen", jp: "すみません", en: "Excuse me / Sorry" },
+        { romaji: "Arigatou gozaimasu", jp: "ありがとうございます", en: "Thank you very much" },
+        { romaji: "Toire wa doko desu ka?", jp: "トイレはどこですか？", en: "Where is the restroom?" },
+        { romaji: "Eigo ga hanasemasu ka?", jp: "英語が話せますか？", en: "Can you speak English?" },
+        { romaji: "Tasukete itadakemasu ka?", jp: "助けていただけますか？", en: "Could you please help me?" }
+      ],
+      transportation: [
+        { romaji: "~ wa doko desu ka?", jp: "〜はどこですか？", en: "Where is ~?" },
+        { romaji: "Kono densha wa ~ ni ikimasu ka?", jp: "この電車は〜に行きますか？", en: "Does this train go to ~?" },
+        { romaji: "Shinjuku-eki ni ikitai desu", jp: "新宿駅に行きたいです", en: "I want to go to Shinjuku Station" },
+        { romaji: "Kippu uriba", jp: "切符売り場", en: "Ticket counter / office" },
+        { romaji: "Taxi noriba wa doko desu ka?", jp: "タクシー乗り場はどこですか？", en: "Where is the taxi stand?" }
+      ],
+      konbini: [
+        { romaji: "Fukuro wa kekkou desu", jp: "袋は結構です", en: "No plastic bag needed, thanks" },
+        { romaji: "Atatame onegai shimasu", jp: "温めお願いします", en: "Please heat this up (bento)" },
+        { romaji: "Suica de onegai shimasu", jp: "Suicaでお願いします", en: "I'll pay with Suica / IC card" },
+        { romaji: "Toire wo karitemo ii desu ka?", jp: "トイレを借りてもいいですか？", en: "May I use the restroom?" },
+        { romaji: "Spoon / O-hashi onegai shimasu", jp: "スプーン / お箸お願いします", en: "Spoon / Chopsticks please" }
+      ],
+      restaurant: [
+        { romaji: "Hitori / Futari desu", jp: "1人 / 2人です", en: "1 person / 2 people" },
+        { romaji: "Eigo no menu wa arimasu ka?", jp: "英語のメニューはありますか？", en: "Do you have an English menu?" },
+        { romaji: "Kore onegai shimasu", jp: "これお願いします", en: "This one, please (pointing)" },
+        { romaji: "O-susume wa nan desu ka?", jp: "おすすめは何ですか？", en: "What do you recommend?" },
+        { romaji: "O-kaikei onegai shimasu", jp: "お会計お願いします", en: "Check / Bill, please" }
+      ],
+      shopping: [
+        { romaji: "Kore wa ikura desu ka?", jp: "粉れはおいくらですか？", en: "How much is this?" },
+        { romaji: "Shichaku shitemo ii desu ka?", jp: "試着してもいいですか？", en: "Can I try this on?" },
+        { romaji: "Atarashii mono wa arimasu ka?", jp: "新しいものはありますか？", en: "Do you have an unopened/new one?" },
+        { romaji: "Menzei deki masu ka?", jp: "免税できますか？", en: "Is tax-free available?" },
+        { romaji: "Card de onegai shimasu", jp: "カードでお願いします", en: "I'll pay by credit card" }
+      ]
+    };
+
+    const PRE_DEPARTURE_ITEMS = [
+      "Submit 'Visit Japan Web' for Immigration/Customs QR",
+      "Check Passport validity (minimum 6 months)",
+      "Buy/Activate eSIM or book Pocket Wi-Fi",
+      "Exchange some IDR to JPY Cash locally",
+      "Add Digital Suica/Pasmo to Apple Wallet (iPhone only)",
+      "Download offline Google Maps for Tokyo/Osaka",
+      "Purchase Universal Travel Adapter (Type A)"
+    ];
+
+    const YEAR_ROUND_ITEMS = [
+      "Passport & Flight Tickets",
+      "Yen Cash & Coin Purse (Coins are heavy in Japan!)",
+      "Physical Suica / Pasmo / IC Card",
+      "Pocket Wi-Fi or e-SIM",
+      "Universal Power Adapter (Japan uses Type A / 2-pin)",
+      "Power Bank (Portable Charger)",
+      "Comfortable Walking Shoes (10k-20k steps/day)"
+    ];
+
+    const SEASONAL_ITEMS = {
+      spring: [
+        "Light Jacket / Windbreaker (Cool mornings/nights)",
+        "Layered clothing (T-shirts + Cardigans)",
+        "Hay fever / Pollen Allergy Medicine",
+        "Compact Umbrella (Spring rain)"
+      ],
+      summer: [
+        "Lightweight, Breathable Clothes",
+        "UV Protection Parasol or Sunscreen",
+        "Gatsby Cooling Wipes / Handheld Fan",
+        "Small Hand Towel (For wiping sweat)"
+      ],
+      autumn: [
+        "Medium Jacket or Trench Coat",
+        "Light Thermal Layers for late Autumn",
+        "Moisturizer / Lip Balm",
+        "Comfortable Boots or Sneakers"
+      ],
+      winter: [
+        "Heattech / Thermal Innerwear (2-3 sets)",
+        "Heavy Down Coat / Puffer Jacket",
+        "Warm Gloves, Beanie & Scarf",
+        "Kairo (Self-heating body packs)"
+      ]
+    };
+
+    window.onload = function() {
+      if (localStorage.getItem("diyUnlocked") === "true") {
+        showApp();
+      }
+    };
+
+    function parseCSV(csvText) {
+      const lines = csvText.trim().split("\n");
+      const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ''));
+      return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        const row = {};
+        headers.forEach((header, index) => {
+          let val = values[index] ? values[index].trim() : "";
+          if (val.startsWith('"') && val.endsWith('"')) {
+            val = val.substring(1, val.length - 1).replace(/""/g, '"');
+          }
+          row[header] = val;
+        });
+        return row;
+      });
+    }
+
+    async function checkPasscode() {
+      const input = document.getElementById("passcode-input").value.trim().toUpperCase();
+      const errorMessage = document.getElementById("error-message");
+      const unlockBtn = document.getElementById("unlock-btn");
+
+      if (!input) return errorMessage.innerText = "Please enter a passcode.";
+
+      unlockBtn.innerText = "Verifying...";
+      unlockBtn.disabled = true;
+
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Spreadsheet fetch failed");
+
+        const csvText = await response.text();
+        const rows = parseCSV(csvText);
+
+        const matchingUser = rows.find(row => row.Passcode && row.Passcode.trim().toUpperCase() === input);
+
+        if (matchingUser) {
+          const today = new Date().toISOString().split('T')[0];
+          
+          if (matchingUser.ExpirationDate && matchingUser.ExpirationDate < today) {
+            errorMessage.innerText = "This passcode expired on " + matchingUser.ExpirationDate;
+          } else {
+            localStorage.setItem("diyUnlocked", "true");
+            localStorage.setItem("activePasscode", input);
+            errorMessage.innerText = "";
+            showApp();
+          }
+        } else {
+          errorMessage.innerText = "Invalid passcode. Please purchase access from creator.";
+        }
+      } catch (error) {
+        console.error(error);
+        errorMessage.innerText = "Unable to connect. Check internet or Google Sheet permissions.";
+      } finally {
+        unlockBtn.innerText = "Unlock App";
+        unlockBtn.disabled = false;
+      }
+    }
+
+    function showApp() {
+      document.getElementById("lock-screen").classList.add("hidden");
+      document.getElementById("app-content").classList.remove("hidden");
+      listenToFirebaseData();
+      renderPhraseCategory();
+    }
+
+    function listenToFirebaseData() {
+      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+      const docRef = doc(db, "trips", activeCode);
+
+      if (unsubscribeFirestore) unsubscribeFirestore();
+
+      unsubscribeFirestore = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          userActivities = data.userActivities || [];
+          userExpenses = data.userExpenses || [];
+          packingChecks = data.packingChecks || {};
+          customPacking = data.customPacking || [];
+          tripDate = data.tripDate || "";
+        } else {
+          userActivities = [];
+          userExpenses = [];
+          packingChecks = {};
+          customPacking = [];
+          tripDate = "";
+        }
+
+        renderActivities();
+        renderExpenses();
+        renderPackingList();
+        renderCountdown();
+      }, (error) => {
+        console.error("Firebase sync error:", error);
+      });
+    }
+
+    async function saveToFirebase() {
+      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
+      const docRef = doc(db, "trips", activeCode);
+      try {
+        await setDoc(docRef, {
+          userActivities,
+          userExpenses,
+          packingChecks,
+          customPacking,
+          tripDate
+        }, { merge: true });
+      } catch (err) {
+        console.error("Failed to save to cloud:", err);
+      }
+    }
+
+    function renderCountdown() {
+      const display = document.getElementById("countdown-display");
+      const dateInput = document.getElementById("trip-date-input");
+
+      if (dateInput && dateInput.value !== tripDate) {
+        dateInput.value = tripDate || "";
+      }
+
+      if (!display) return;
+
+      if (!tripDate) {
+        display.innerText = "✈️ Select flight date";
+        display.style.color = "#2563eb";
+        return;
+      }
+
+      const parts = tripDate.split("-");
+      if (parts.length !== 3) {
+        display.innerText = "✈️ Select flight date";
+        return;
+      }
+
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      const target = new Date(year, month, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const diffTime = target - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 0) {
+        display.innerText = `⏳ ${diffDays} Days Until Japan!`;
+        display.style.color = "#2563eb";
+      } else if (diffDays === 0) {
+        display.innerText = "🎌 Today is Japan Day!";
+        display.style.color = "#16a34a";
+      } else {
+        display.innerText = "🌸 Trip Completed!";
+        display.style.color = "#64748b";
+      }
+    }
+
+    function updateTripDate() {
+      const input = document.getElementById("trip-date-input");
+      tripDate = input ? input.value : "";
+      renderCountdown();
+      saveToFirebase();
+    }
+
+    function addActivity() {
+      const dateDay = document.getElementById("act-date").value.trim();
+      const time = document.getElementById("act-time").value.trim();
+      const title = document.getElementById("act-title").value.trim();
+      const desc = document.getElementById("act-desc").value.trim();
+
+      if (!title) return alert("Please enter an activity title!");
+
+      userActivities.push({ dateDay, time, title, desc });
+      saveToFirebase();
+
+      document.getElementById("act-date").value = "";
+      document.getElementById("act-time").value = "";
+      document.getElementById("act-title").value = "";
+      document.getElementById("act-desc").value = "";
+    }
+
+    function deleteActivity(index) {
+      userActivities.splice(index, 1);
+      saveToFirebase();
+    }
+
+    function getDayColor(dayString) {
+      if (!dayString) return DAY_COLORS[0];
+      const uniqueDays = [...new Set(userActivities.map(a => a.dateDay || 'General'))];
+      const dayIndex = uniqueDays.indexOf(dayString || 'General');
+      const colorIndex = (dayIndex >= 0 ? dayIndex : 0) % DAY_COLORS.length;
+      return DAY_COLORS[colorIndex];
+    }
+
+    function renderActivities() {
+      const list = document.getElementById("itinerary-list");
+      list.innerHTML = "";
+
+      if (userActivities.length === 0) {
+        list.innerHTML = "<p style='text-align:center;'>No activities added yet. Add your first item above!</p>";
+        return;
+      }
+
+      userActivities.forEach((act, idx) => {
+        const color = getDayColor(act.dateDay);
+        const metaParts = [];
+        if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
+        metaParts.push(`⏰ ${act.time || 'Flexible'}`);
+
+        list.innerHTML += `
+          <div class="activity-card" style="border-left-color: ${color.border};">
+            <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
+            <div class="activity-meta" style="color: ${color.text};">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
+            <div class="activity-title">${act.title}</div>
+            ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function addExpense() {
+      const dateDay = document.getElementById("exp-date").value.trim() || "General Expenses";
+      const name = document.getElementById("exp-name").value.trim();
+      const price = parseFloat(document.getElementById("exp-price").value) || 0;
+      const category = document.getElementById("exp-category").value;
+
+      if (!name) return alert("Please enter an expense name!");
+      if (price <= 0) return alert("Please enter a valid price in Yen!");
+
+      userExpenses.push({ id: Date.now(), dateDay, name, price, category });
+      saveToFirebase();
+
+      document.getElementById("exp-name").value = "";
+      document.getElementById("exp-price").value = "";
+    }
+
+    function deleteExpense(expenseId) {
+      userExpenses = userExpenses.filter(item => item.id !== expenseId);
+      saveToFirebase();
+    }
+
+    function renderExpenses() {
+      const list = document.getElementById("expense-list");
+      const grandTotalElem = document.getElementById("grand-total-jpy");
+      list.innerHTML = "";
+
+      if (userExpenses.length === 0) {
+        list.innerHTML = "<p style='text-align:center;'>No expenses logged yet. Add your first item above!</p>";
+        if (grandTotalElem) grandTotalElem.innerText = "¥0";
+        return;
+      }
+
+      const grandTotal = userExpenses.reduce((sum, item) => sum + item.price, 0);
+      if (grandTotalElem) grandTotalElem.innerText = "¥" + grandTotal.toLocaleString("ja-JP");
+
+      const grouped = {};
+      userExpenses.forEach(item => {
+        if (!grouped[item.dateDay]) grouped[item.dateDay] = [];
+        grouped[item.dateDay].push(item);
+      });
+
+      Object.keys(grouped).forEach(date => {
+        const items = grouped[date];
+        const dayTotal = items.reduce((sum, i) => sum + i.price, 0);
+
+        let dayHtml = `
+          <div class="day-summary-card">
+            <div class="day-summary-header">
+              <span class="day-summary-title">📅 ${date}</span>
+              <span class="day-summary-total">Day Total: ¥${dayTotal.toLocaleString("ja-JP")}</span>
+            </div>
+        `;
+
+        items.forEach(exp => {
+          dayHtml += `
+            <div class="expense-card">
+              <button class="delete-btn" onclick="deleteExpense(${exp.id})">✕</button>
+              <div class="activity-title" style="font-size:14px;">
+                ${exp.name} 
+                <span class="cat-badge">${exp.category}</span>
+              </div>
+              <div class="activity-desc" style="font-weight:700; color:var(--primary); margin-top:2px;">
+                ¥${exp.price.toLocaleString("ja-JP")}
+              </div>
+            </div>
+          `;
+        });
+
+        dayHtml += `</div>`;
+        list.innerHTML += dayHtml;
+      });
+    }
+
+    function selectSeason(season, evt) {
+      currentSeason = season;
+      document.querySelectorAll(".season-btn").forEach(btn => btn.classList.remove("active"));
+      if (evt && evt.target) evt.target.classList.add("active");
+
+      document.getElementById("packing-content").classList.remove("hidden");
+      renderPackingList();
+    }
+
+    function renderPackingList() {
+      const preDepDiv = document.getElementById("pre-departure-list");
+      if (preDepDiv) {
+        preDepDiv.innerHTML = PRE_DEPARTURE_ITEMS.map((item, idx) => {
+          const id = "predep_" + idx;
+          const isChecked = packingChecks[id] ? "checked" : "";
+          return `
+            <label class="checklist-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+              <span>${item}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      if (!currentSeason) return;
+
+      const essentialsDiv = document.getElementById("essentials-list");
+      if (essentialsDiv) {
+        essentialsDiv.innerHTML = YEAR_ROUND_ITEMS.map((item, idx) => {
+          const id = "essential_" + idx;
+          const isChecked = packingChecks[id] ? "checked" : "";
+          return `
+            <label class="checklist-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+              <span>${item}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      const seasonalDiv = document.getElementById("seasonal-list");
+      const seasonTitle = document.getElementById("season-title");
+      if (seasonalDiv) {
+        const titles = { spring: "🌸 Spring Items", summer: "☀️ Summer Items", autumn: "🍁 Autumn Items", winter: "❄️ Winter Items" };
+        seasonTitle.innerText = titles[currentSeason];
+
+        seasonalDiv.innerHTML = SEASONAL_ITEMS[currentSeason].map((item, idx) => {
+          const id = currentSeason + "_" + idx;
+          const isChecked = packingChecks[id] ? "checked" : "";
+          return `
+            <label class="checklist-item ${isChecked ? 'checked' : ''}">
+              <input type="checkbox" ${isChecked} onchange="toggleCheck('${id}', this)">
+              <span>${item}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      const customDiv = document.getElementById("custom-packing-list");
+      if (customDiv) {
+        if (customPacking.length === 0) {
+          customDiv.innerHTML = "<p style='font-size:13px; color:var(--text-muted); text-align:center;'>No personal items added yet.</p>";
+        } else {
+          customDiv.innerHTML = customPacking.map(item => {
+            const isChecked = packingChecks[item.id] ? "checked" : "";
+            return `
+              <div class="checklist-item ${isChecked ? 'checked' : ''}" style="justify-content:space-between;">
+                <label style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer; margin:0;">
+                  <input type="checkbox" ${isChecked} onchange="toggleCheck('${item.id}', this)">
+                  <span>${item.text}</span>
+                </label>
+                <button onclick="deleteCustomPackingItem('${item.id}')" style="background:none; color:#ef4444; width:auto; padding:0 4px; font-size:13px;">✕</button>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+
+    function toggleCheck(itemId, checkbox) {
+      packingChecks[itemId] = checkbox.checked;
+      saveToFirebase();
+    }
+
+    function addCustomPackingItem() {
+      const input = document.getElementById("custom-item-input");
+      const text = input.value.trim();
+
+      if (!text) return alert("Please type an item name!");
+
+      customPacking.push({ id: "custom_" + Date.now(), text: text });
+      saveToFirebase();
+
+      input.value = "";
+    }
+
+    function deleteCustomPackingItem(itemId) {
+      customPacking = customPacking.filter(item => item.id !== itemId);
+      delete packingChecks[itemId];
+      saveToFirebase();
+    }
+
+    function switchTab(tabName, evt) {
+      document.getElementById("tab-itinerary").classList.add("hidden");
+      document.getElementById("tab-expense").classList.add("hidden");
+      document.getElementById("tab-converter").classList.add("hidden");
+      document.getElementById("tab-phrases").classList.add("hidden");
+      document.getElementById("tab-packing").classList.add("hidden");
+
+      const navBtns = document.querySelectorAll(".nav-btn");
+      navBtns.forEach(btn => btn.classList.remove("active"));
+
+      document.getElementById(`tab-${tabName}`).classList.remove("hidden");
+      if (evt && evt.target) {
+        const targetBtn = evt.target.closest('.nav-btn');
+        if (targetBtn) targetBtn.classList.add("active");
+      }
+    }
+
+    function renderPhraseCategory() {
+      const select = document.getElementById("phrase-category-select");
+      const categoryKey = select ? select.value : "general";
+      const phrases = PHRASE_DATA[categoryKey] || [];
+      const container = document.getElementById("phrase-list");
+
+      if (container) {
+        container.innerHTML = phrases.map(p => `
+          <div class="phrase-card">
+            <div class="phrase-jp">${p.jp}</div>
+            <div class="phrase-romaji">${p.romaji}</div>
+            <div class="phrase-en">${p.en}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function convertCurrency() {
+      const rate = parseFloat(document.getElementById("jpy-rate").value) || 0;
+      const jpy = parseFloat(document.getElementById("jpy-input").value) || 0;
+      const idr = jpy * rate;
+      document.getElementById("idr-result").innerText = "Rp " + idr.toLocaleString("id-ID");
+    }
+
+    function lockApp() {
+      if (unsubscribeFirestore) unsubscribeFirestore();
+      localStorage.removeItem("diyUnlocked");
+      localStorage.removeItem("activePasscode");
+      location.reload();
+    }
+
+    window.checkPasscode = checkPasscode;
+    window.addActivity = addActivity;
+    window.deleteActivity = deleteActivity;
+    window.addExpense = addExpense;
+    window.deleteExpense = deleteExpense;
+    window.selectSeason = selectSeason;
+    window.toggleCheck = toggleCheck;
+    window.addCustomPackingItem = addCustomPackingItem;
+    window.deleteCustomPackingItem = deleteCustomPackingItem;
+    window.switchTab = switchTab;
+    window.renderPhraseCategory = renderPhraseCategory;
+    window.convertCurrency = convertCurrency;
+    window.updateTripDate = updateTripDate;
+    window.lockApp = lockApp;
+  </script>
+</body>
+</html>
