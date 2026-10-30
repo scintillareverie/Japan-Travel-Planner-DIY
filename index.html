@@ -459,7 +459,7 @@
   <script type="module">
     import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // YOUR ACTUAL FIREBASE CONFIG KEYS
     const firebaseConfig = {
@@ -718,44 +718,11 @@
 
   return doc(db, "trips", auth.currentUser.uid);
 }
-
-async function migrateOldTripData() {
-  if (!auth.currentUser) {
-    throw new Error("No authenticated user.");
-  }
-
-  const newTripRef = getTripDocument();
-
-  // Do not overwrite data if the new document already exists.
-  const newTripSnap = await getDoc(newTripRef);
-
-  if (newTripSnap.exists()) {
-    console.log("Migration skipped: new trip document already exists.");
-    return;
-  }
-
-  // Read the old document using the test passcode.
-  const oldTripRef = doc(db, "trips", "DIYBUDI-2026");
-  const oldTripSnap = await getDoc(oldTripRef);
-
-  if (!oldTripSnap.exists()) {
-    console.log("No old trip data found to migrate.");
-    return;
-  }
-
-  // Copy all old data into the authenticated user's new document.
-  await setDoc(newTripRef, oldTripSnap.data());
-
-  console.log("Old trip data migrated successfully.");
-}
     
    async function showApp() {
   if (!auth.currentUser || !enforceLocalExpiry()) return;
 
   try {
-    // Migrate old planner data before loading the new document.
-    await migrateOldTripData();
-
     document.getElementById("lock-screen").classList.add("hidden");
     document.getElementById("app-content").classList.remove("hidden");
 
