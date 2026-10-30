@@ -457,6 +457,7 @@
 
   <!-- FIREBASE SDK & APP LOGIC -->
   <script type="module">
+    import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -472,6 +473,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+    const VERIFY_ACCESS_URL = "https://japan-planner-auth.scintilla-reverie.workers.dev";
 
     // Global variables
     const SHEET_ID = "1wWbObqv1DKDqr3TGAn0DEaO44BvNBsT-bCKlCtDp5Jg";
@@ -484,6 +487,8 @@
     let tripDate = "";
     let currentSeason = null;
     let unsubscribeFirestore = null;
+    let appVisible = false;
+    let expiryTimer = null;
 
     const DAY_COLORS = [
       { border: '#2563eb', text: '#2563eb' },
@@ -588,11 +593,26 @@
       ]
     };
 
-    window.onload = function() {
-      if (localStorage.getItem("diyUnlocked") === "true") {
-        showApp();
-      }
-    };
+    onAuthStateChanged(auth, (user) => {
+  if (user) {
+    if (enforceLocalExpiry()) {
+      showApp();
+    } else {
+      signOut(auth).catch(console.error);
+    }
+
+  } else {
+    appVisible = false;
+
+    if (unsubscribeFirestore) {
+      unsubscribeFirestore();
+      unsubscribeFirestore = null;
+    }
+
+    document.getElementById("app-content").classList.add("hidden");
+    document.getElementById("lock-screen").classList.remove("hidden");
+  }
+});
 
     function parseCSV(csvText) {
       const lines = csvText.trim().split("\n");
@@ -612,100 +632,159 @@
     }
 
     async function checkPasscode() {
-      const input = document.getElementById("passcode-input").value.trim().toUpperCase();
-      const errorMessage = document.getElementById("error-message");
-      const unlockBtn = document.getElementById("unlock-btn");
+  const input = document.getElementById("passcode-input").value.trim().toUpperCase();
+  const errorMessage = document.getElementById("error-message");
+  const unlockBtn = document.getElementById("unlock-btn");
 
-      if (!input) return errorMessage.innerText = "Please enter a passcode.";
+  if (!input) {
+    errorMessage.innerText = "Please enter a passcode.";
+    return;
+  }
 
-      unlockBtn.innerText = "Verifying...";
-      unlockBtn.disabled = true;
+  unlockBtn.innerText = "Verifying...";
+  unlockBtn.disabled = true;
 
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Spreadsheet fetch failed");
+  try {
+    const response = await fetch(VERIFY_ACCESS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify({ passcode: input })
+    });
 
-        const csvText = await response.text();
-        const rows = parseCSV(csvText);
+    const result = await response.json();
 
-        const matchingUser = rows.find(row => row.Passcode && row.Passcode.trim().toUpperCase() === input);
-
-        if (matchingUser) {
-          const today = new Date().toISOString().split('T')[0];
-          
-          if (matchingUser.ExpirationDate && matchingUser.ExpirationDate < today) {
-            errorMessage.innerText = "This passcode expired on " + matchingUser.ExpirationDate;
-          } else {
-            localStorage.setItem("diyUnlocked", "true");
-            localStorage.setItem("activePasscode", input);
-            errorMessage.innerText = "";
-            showApp();
-          }
-        } else {
-          errorMessage.innerText = "Invalid passcode. Please purchase access from creator.";
-        }
-      } catch (error) {
-        console.error(error);
-        errorMessage.innerText = "Unable to connect. Check internet or Google Sheet permissions.";
-      } finally {
-        unlockBtn.innerText = "Unlock App";
-        unlockBtn.disabled = false;
-      }
+    if (!response.ok || !result.customToken || !result.expiresAt) {
+      throw new Error(result.message || "Invalid or expired passcode.");
     }
 
+    localStorage.setItem(
+      "accessExpiresAt",
+      String(new Date(result.expiresAt).getTime())
+    );
+
+    await signInWithCustomToken(auth, result.customToken);
+
+    document.getElementById("passcode-input").value = "";
+    errorMessage.innerText = result.migrationNotice || "";
+
+    enforceLocalExpiry();
+    showApp();
+
+  } catch (error) {
+    localStorage.removeItem("accessExpiresAt");
+    console.error("Passcode verification failed:", error);
+    errorMessage.innerText = error.message || "Unable to verify access. Please check your connection.";
+
+  } finally {
+    unlockBtn.innerText = "Unlock App";
+    unlockBtn.disabled = false;
+  }
+}
+
+    function enforceLocalExpiry() {
+  const expiresAt = Number(localStorage.getItem("accessExpiresAt"));
+
+  if (!expiresAt || Date.now() >= expiresAt) {
+    localStorage.removeItem("accessExpiresAt");
+
+    if (auth.currentUser) {
+      signOut(auth).catch(console.error);
+    }
+
+    return false;
+  }
+
+  if (expiryTimer) {
+    clearTimeout(expiryTimer);
+  }
+
+  expiryTimer = setTimeout(() => {
+    lockApp("Your access has expired. Please enter a valid passcode.");
+  }, Math.max(0, expiresAt - Date.now()));
+
+  return true;
+}
+
+    function getTripDocument() {
+  if (!auth.currentUser) {
+    throw new Error("No authenticated user.");
+  }
+
+  return doc(db, "trips", auth.currentUser.uid);
+}
+    
     function showApp() {
-      document.getElementById("lock-screen").classList.add("hidden");
-      document.getElementById("app-content").classList.remove("hidden");
-      listenToFirebaseData();
-      renderPhraseCategory();
-    }
+  if (!auth.currentUser || !enforceLocalExpiry()) return;
+
+  document.getElementById("lock-screen").classList.add("hidden");
+  document.getElementById("app-content").classList.remove("hidden");
+
+  if (!appVisible) {
+    appVisible = true;
+    listenToFirebaseData();
+    renderPhraseCategory();
+  }
+}
 
     function listenToFirebaseData() {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const docRef = doc(db, "trips", activeCode);
+  const docRef = getTripDocument();
 
-      if (unsubscribeFirestore) unsubscribeFirestore();
+  if (unsubscribeFirestore) {
+    unsubscribeFirestore();
+  }
 
-      unsubscribeFirestore = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          userActivities = data.userActivities || [];
-          userExpenses = data.userExpenses || [];
-          packingChecks = data.packingChecks || {};
-          customPacking = data.customPacking || [];
-          tripDate = data.tripDate || "";
-        } else {
-          userActivities = [];
-          userExpenses = [];
-          packingChecks = {};
-          customPacking = [];
-          tripDate = "";
-        }
+  unsubscribeFirestore = onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
 
-        renderActivities();
-        renderExpenses();
-        renderPackingList();
-        renderCountdown();
-      }, (error) => {
-        console.error("Firebase sync error:", error);
-      });
+      userActivities = data.userActivities || [];
+      userExpenses = data.userExpenses || [];
+      packingChecks = data.packingChecks || {};
+      customPacking = data.customPacking || [];
+      tripDate = data.tripDate || "";
+
+    } else {
+      userActivities = [];
+      userExpenses = [];
+      packingChecks = {};
+      customPacking = [];
+      tripDate = "";
     }
+
+    renderActivities();
+    renderExpenses();
+    renderPackingList();
+    renderCountdown();
+
+  }, (error) => {
+    console.error("Firebase sync error:", error);
+
+    if (error.code === "permission-denied") {
+      lockApp("Access has expired or is no longer active. Please contact the app provider.");
+    }
+  });
+}
 
     async function saveToFirebase() {
-      const activeCode = localStorage.getItem("activePasscode") || "DEFAULT";
-      const docRef = doc(db, "trips", activeCode);
-      try {
-        await setDoc(docRef, {
-          userActivities,
-          userExpenses,
-          packingChecks,
-          customPacking,
-          tripDate
-        }, { merge: true });
-      } catch (err) {
-        console.error("Failed to save to cloud:", err);
-      }
+  if (!auth.currentUser || !enforceLocalExpiry()) return;
+
+  try {
+    await setDoc(getTripDocument(), {
+      userActivities,
+      userExpenses,
+      packingChecks,
+      customPacking,
+      tripDate
+    }, { merge: true });
+
+  } catch (err) {
+    console.error("Failed to save to cloud:", err);
+
+    if (err.code === "permission-denied") {
+      lockApp("Access has expired or is no longer active.");
     }
+  }
+}
 
     function renderCountdown() {
       const display = document.getElementById("countdown-display");
@@ -1031,12 +1110,28 @@
       document.getElementById("idr-result").innerText = "Rp " + idr.toLocaleString("id-ID");
     }
 
-    function lockApp() {
-      if (unsubscribeFirestore) unsubscribeFirestore();
-      localStorage.removeItem("diyUnlocked");
-      localStorage.removeItem("activePasscode");
-      location.reload();
-    }
+    function lockApp(message = "") {
+  if (expiryTimer) {
+    clearTimeout(expiryTimer);
+    expiryTimer = null;
+  }
+
+  if (unsubscribeFirestore) {
+    unsubscribeFirestore();
+    unsubscribeFirestore = null;
+  }
+
+  appVisible = false;
+  localStorage.removeItem("accessExpiresAt");
+
+  if (message) {
+    document.getElementById("error-message").innerText = message;
+  }
+
+  signOut(auth).catch(error => {
+    console.error("Firebase sign-out failed:", error);
+  });
+}
 
     window.checkPasscode = checkPasscode;
     window.addActivity = addActivity;
