@@ -653,6 +653,12 @@
 
     const result = await response.json();
 
+    console.log("Verification response:", {
+  keys: Object.keys(result),
+  hasCustomToken: !!result.customToken,
+  expiresAt: result.expiresAt
+});
+
     if (!response.ok || !result.customToken || !result.expiresAt) {
       throw new Error(result.message || "Invalid or expired passcode.");
     }
