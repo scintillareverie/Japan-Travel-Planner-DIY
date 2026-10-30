@@ -711,14 +711,15 @@
   return true;
 }
 
-    function getTripDocument() {
+ function getTripDocument() {
   if (!auth.currentUser) {
     throw new Error("No authenticated user.");
   }
 
   return doc(db, "trips", auth.currentUser.uid);
+}
 
-      async function migrateOldTripData() {
+async function migrateOldTripData() {
   if (!auth.currentUser) {
     throw new Error("No authenticated user.");
   }
@@ -746,7 +747,6 @@
   await setDoc(newTripRef, oldTripSnap.data());
 
   console.log("Old trip data migrated successfully.");
-}
 }
     
    async function showApp() {
