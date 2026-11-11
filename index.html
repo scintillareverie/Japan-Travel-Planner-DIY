@@ -614,6 +614,12 @@
   }
 });
 
+    document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && auth.currentUser && !enforceLocalExpiry()) {
+    lockApp("Your access has expired. Please enter a valid passcode.");
+  }
+});
+
     function parseCSV(csvText) {
       const lines = csvText.trim().split("\n");
       const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ''));
@@ -687,7 +693,8 @@
   }
 }
 
-    function enforceLocalExpiry() {
+    
+function enforceLocalExpiry() {
   const expiresAt = Number(localStorage.getItem("accessExpiresAt"));
 
   if (!expiresAt || Date.now() >= expiresAt) {
@@ -704,12 +711,20 @@
     clearTimeout(expiryTimer);
   }
 
+  const remainingTime = expiresAt - Date.now();
+  const maxTimeout = 2147483647;
+
   expiryTimer = setTimeout(() => {
-    lockApp("Your access has expired. Please enter a valid passcode.");
-  }, Math.max(0, expiresAt - Date.now()));
+    if (Date.now() >= expiresAt) {
+      lockApp("Your access has expired. Please enter a valid passcode.");
+    } else {
+      enforceLocalExpiry();
+    }
+  }, Math.min(remainingTime, maxTimeout));
 
   return true;
 }
+
 
  function getTripDocument() {
   if (!auth.currentUser) {
