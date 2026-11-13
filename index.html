@@ -568,6 +568,67 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
   color: #85847F;
 }
 
+    
+/* Larger premium brand header */
+
+.brand-header {
+  padding: 30px 25px !important;
+  margin-bottom: 18px !important;
+  border-radius: 17px !important;
+}
+
+.brand-header-top {
+  margin-bottom: 25px !important;
+}
+
+.brand-header h1 {
+  font-size: 36px !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.8px !important;
+  margin-bottom: 10px !important;
+}
+
+.brand-header p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.brand-divider {
+  margin: 21px 0 15px !important;
+  width: 42px !important;
+}
+
+.brand-features {
+  font-size: 10px !important;
+  letter-spacing: 1px !important;
+}
+
+/* Keep the header balanced on smaller phones */
+@media (max-width: 380px) {
+  .brand-header {
+    padding: 23px 18px !important;
+  }
+
+  .brand-header h1 {
+    font-size: 30px !important;
+  }
+
+  .brand-header-top {
+    margin-bottom: 20px !important;
+  }
+}
+
+    
+/* Refined locked-screen badge */
+#lock-screen .header-badge {
+  background: #F4EAE6 !important;
+  color: #A7473F !important;
+  font-size: 10px !important;
+  letter-spacing: 1px !important;
+  padding: 6px 13px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+}
   </style>
 </head>
 <body>
@@ -575,7 +636,7 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
   <div class="container">
     <!-- LOCK SCREEN -->
     <div id="lock-screen" class="card" style="text-align: center;">
-      <span class="header-badge">Pro Travel Tool</span>
+      <span class="header-badge">Your Travel Companion</span>
       <h2>Unlock Your Planner</h2>
       <p>Type your activation passcode to build & sync your travel itinerary.</p>
       <input type="text" id="passcode-input" placeholder="e.g. TRAVEL2026">
