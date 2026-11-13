@@ -928,6 +928,7 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
     let packingChecks = {};
     let customPacking = [];
     let tripDate = "";
+    let tripBudget = 0;
     let currentSeason = null;
     let unsubscribeFirestore = null;
     let appVisible = false;
@@ -1212,6 +1213,7 @@ function enforceLocalExpiry() {
       packingChecks = data.packingChecks || {};
       customPacking = data.customPacking || [];
       tripDate = data.tripDate || "";
+      tripBudget = Number(data.tripBudget) || 0;
 
     } else {
       userActivities = [];
@@ -1219,6 +1221,7 @@ function enforceLocalExpiry() {
       packingChecks = {};
       customPacking = [];
       tripDate = "";
+      tripBudget = 0;
     }
 
     renderActivities();
@@ -1240,12 +1243,13 @@ function enforceLocalExpiry() {
 
   try {
     await setDoc(getTripDocument(), {
-      userActivities,
-      userExpenses,
-      packingChecks,
-      customPacking,
-      tripDate
-    }, { merge: true });
+  userActivities,
+  userExpenses,
+  packingChecks,
+  customPacking,
+  tripDate,
+  tripBudget
+}, { merge: true });
 
   } catch (err) {
     console.error("Failed to save to cloud:", err);
@@ -1389,6 +1393,7 @@ function enforceLocalExpiry() {
       const list = document.getElementById("expense-list");
       const grandTotalElem = document.getElementById("grand-total-jpy");
       list.innerHTML = "";
+      renderTripBudgetOverview();
 
       if (userExpenses.length === 0) {
         list.innerHTML = "<p style='text-align:center;'>No expenses logged yet. Add your first item above!</p>";
@@ -1436,6 +1441,140 @@ function enforceLocalExpiry() {
         list.innerHTML += dayHtml;
       });
     }
+
+    
+// ==========================================
+// TRIP BUDGET OVERVIEW
+// ==========================================
+
+function saveTripBudget() {
+  const input = document.getElementById("trip-budget-input");
+  const amount = Number(input.value);
+
+  if (!Number.isFinite(amount) || amount < 0) {
+    alert("Please enter a valid trip budget.");
+    return;
+  }
+
+  tripBudget = amount;
+  renderTripBudgetOverview();
+  saveToFirebase();
+}
+
+function renderTripBudgetOverview() {
+  const input = document.getElementById("trip-budget-input");
+  const results = document.getElementById("budget-overview-results");
+  const categoryContainer = document.getElementById("category-breakdown");
+
+  if (!results || !categoryContainer) return;
+
+  if (input && document.activeElement !== input) {
+    input.value = tripBudget > 0 ? tripBudget : "";
+  }
+
+  const totalSpent = userExpenses.reduce(
+    (sum, item) => sum + (Number(item.price) || 0),
+    0
+  );
+
+  const remaining = tripBudget - totalSpent;
+  const percentage = tripBudget > 0
+    ? (totalSpent / tripBudget) * 100
+    : 0;
+
+  if (tripBudget > 0) {
+    const progress = Math.min(percentage, 100);
+
+    results.innerHTML = `
+      <div style="background:#F6F3ED; padding:14px; border-radius:12px;">
+        <small style="font-size:11px; color:#777C83; font-weight:700;">
+          YOUR TRIP BUDGET
+        </small>
+
+        <div style="font-size:25px; font-weight:800; color:#252A32; margin:4px 0 12px;">
+          ¥${tripBudget.toLocaleString("ja-JP")}
+        </div>
+
+        <div style="display:flex; justify-content:space-between; gap:8px; margin-bottom:6px;">
+          <span style="font-size:12px; color:#777C83;">
+            Spent: ¥${totalSpent.toLocaleString("ja-JP")}
+          </span>
+          <span style="font-size:12px; font-weight:700; color:#A7473F;">
+            ${percentage.toFixed(1)}% used
+          </span>
+        </div>
+
+        <div style="height:9px; background:#E8E3DA; border-radius:20px; overflow:hidden;">
+          <div style="height:100%; width:${progress}%; background:#A7473F; border-radius:20px;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+          <span style="font-size:12px; color:#777C83;">
+            ${remaining >= 0 ? "Remaining budget" : "Over budget"}
+          </span>
+          <strong style="font-size:17px; color:${remaining >= 0 ? "#252A32" : "#A7473F"};">
+            ${remaining < 0 ? "-" : ""}¥${Math.abs(remaining).toLocaleString("ja-JP")}
+          </strong>
+        </div>
+      </div>
+    `;
+  } else {
+    results.innerHTML = `
+      <p style="font-size:12px; text-align:center;">
+        Enter your trip budget to see how much you have left to spend.
+      </p>
+    `;
+  }
+
+  // Calculate expenses by category
+  const categoryTotals = {};
+
+  userExpenses.forEach(item => {
+    const category = item.category || "📦 Other / Misc";
+    categoryTotals[category] =
+      (categoryTotals[category] || 0) + (Number(item.price) || 0);
+  });
+
+  const sortedCategories = Object.entries(categoryTotals)
+    .sort((a, b) => b[1] - a[1]);
+
+  if (sortedCategories.length === 0) {
+    categoryContainer.innerHTML = `
+      <p style="font-size:12px; text-align:center;">
+        Your category breakdown will appear here once you add expenses.
+      </p>
+    `;
+    return;
+  }
+
+  categoryContainer.innerHTML = sortedCategories.map(([category, amount]) => {
+    const categoryPercentage = totalSpent > 0
+      ? (amount / totalSpent) * 100
+      : 0;
+
+    return `
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:5px;">
+          <span style="font-size:12px; font-weight:600; color:#252A32;">
+            ${category.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")}
+          </span>
+          <span style="font-size:12px; font-weight:700; color:#252A32; white-space:nowrap;">
+            ¥${amount.toLocaleString("ja-JP")}
+          </span>
+        </div>
+
+        <div style="height:7px; background:#EEEAE3; border-radius:20px; overflow:hidden;">
+          <div style="height:100%; width:${categoryPercentage}%; background:#89958A; border-radius:20px;"></div>
+        </div>
+
+        <div style="font-size:10px; color:#777C83; text-align:right; margin-top:3px;">
+          ${categoryPercentage.toFixed(1)}% of expenses
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
 
     function selectSeason(season, evt) {
       currentSeason = season;
