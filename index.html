@@ -728,6 +728,55 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
           <h2 id="grand-total-jpy" style="color:var(--primary); margin-top:2px; font-size:24px;">¥0</h2>
         </div>
 
+        
+<!-- TRIP BUDGET OVERVIEW -->
+<div id="trip-budget-card" style="background:#FBFAF7; border:1px solid #E8E3DA; border-radius:14px; padding:14px; margin-bottom:16px;">
+
+  <h4 style="font-size:15px; font-weight:700; color:#252A32; margin-bottom:4px;">
+    Trip Budget Overview
+  </h4>
+
+  <p style="font-size:12px; margin-bottom:12px;">
+    Set your budget and keep track of your spending.
+  </p>
+
+  <div style="display:flex; gap:8px; align-items:center;">
+    <input
+      type="number"
+      id="trip-budget-input"
+      min="0"
+      placeholder="Enter your total budget in Yen"
+      style="flex:1; min-width:0; margin:0;"
+    >
+    <button
+      onclick="saveTripBudget()"
+      style="width:auto; white-space:nowrap; padding:11px 15px;"
+    >
+      Save
+    </button>
+  </div>
+
+  <div id="budget-overview-results" style="margin-top:14px;">
+    <p style="font-size:12px; text-align:center;">
+      Enter your trip budget to see your spending overview.
+    </p>
+  </div>
+
+  <div style="border-top:1px solid #E8E3DA; margin-top:16px; padding-top:14px;">
+    <h4 style="font-size:13px; font-weight:700; color:#252A32; margin-bottom:10px;">
+      Expenses by Category
+    </h4>
+    <div id="category-breakdown">
+      <p style="font-size:12px; text-align:center;">
+        Your category breakdown will appear here.
+      </p>
+    </div>
+  </div>
+
+</div>
+<!-- END TRIP BUDGET OVERVIEW -->
+
+
         <div style="background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:16px;">
           <input type="text" id="exp-date" placeholder="Date / Day (e.g. Day 1 - Nov 10)">
           <input type="text" id="exp-name" placeholder="Item (e.g. Ichiran Ramen)">
