@@ -1313,22 +1313,30 @@ function enforceLocalExpiry() {
       saveToFirebase();
     }
 
-    function addActivity() {
-      const dateDay = document.getElementById("act-date").value.trim();
-      const time = document.getElementById("act-time").value.trim();
-      const title = document.getElementById("act-title").value.trim();
-      const desc = document.getElementById("act-desc").value.trim();
+    
+function addActivity() {
+  const dateDay = document.getElementById("act-date").value.trim();
+  const time = document.getElementById("act-time").value.trim();
+  const title = document.getElementById("act-title").value.trim();
+  const desc = document.getElementById("act-desc").value.trim();
+  const mapLink = document.getElementById("act-map").value.trim();
 
-      if (!title) return alert("Please enter an activity title!");
+  if (!title) return alert("Please enter an activity title!");
 
-      userActivities.push({ dateDay, time, title, desc });
-      saveToFirebase();
+  if (mapLink && !/^https:\/\/(www\.)?(google\.[a-z.]+\/maps|maps\.app\.goo\.gl\/)/i.test(mapLink)) {
+    return alert("Please enter a valid Google Maps link.");
+  }
 
-      document.getElementById("act-date").value = "";
-      document.getElementById("act-time").value = "";
-      document.getElementById("act-title").value = "";
-      document.getElementById("act-desc").value = "";
-    }
+  userActivities.push({ dateDay, time, title, desc, mapLink });
+  saveToFirebase();
+
+  document.getElementById("act-date").value = "";
+  document.getElementById("act-time").value = "";
+  document.getElementById("act-title").value = "";
+  document.getElementById("act-desc").value = "";
+  document.getElementById("act-map").value = "";
+}
+
 
     function deleteActivity(index) {
       userActivities.splice(index, 1);
