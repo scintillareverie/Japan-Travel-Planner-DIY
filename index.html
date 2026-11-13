@@ -1351,31 +1351,41 @@ function addActivity() {
       return DAY_COLORS[colorIndex];
     }
 
-    function renderActivities() {
-      const list = document.getElementById("itinerary-list");
-      list.innerHTML = "";
+    
+function renderActivities() {
+  const list = document.getElementById("itinerary-list");
+  list.innerHTML = "";
 
-      if (userActivities.length === 0) {
-        list.innerHTML = "<p style='text-align:center;'>No activities added yet. Add your first item above!</p>";
-        return;
-      }
+  if (userActivities.length === 0) {
+    list.innerHTML = "<p style='text-align:center;'>No activities added yet. Add your first item above!</p>";
+    return;
+  }
 
-      userActivities.forEach((act, idx) => {
-        const color = getDayColor(act.dateDay);
-        const metaParts = [];
-        if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
-        metaParts.push(`⏰ ${act.time || 'Flexible'}`);
+  userActivities.forEach((act, idx) => {
+    const color = getDayColor(act.dateDay);
+    const metaParts = [];
+    if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
+    metaParts.push(`⏰ ${act.time || 'Flexible'}`);
 
-        list.innerHTML += `
-          <div class="activity-card" style="border-left-color: ${color.border};">
-            <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
-            <div class="activity-meta" style="color: ${color.text};">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
-            <div class="activity-title">${act.title}</div>
-            ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
+    list.innerHTML += `
+      <div class="activity-card" style="border-left-color: ${color.border};">
+        <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
+        <div class="activity-meta" style="color: ${color.text};">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
+        <div class="activity-title">${act.title}</div>
+        ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
+        ${act.mapLink ? `
+          <div style="margin-top:8px;">
+            <a href="${act.mapLink}" target="_blank" rel="noopener noreferrer"
+               style="color:#A7473F; font-size:13px; font-weight:700; text-decoration:none;">
+              📍 Open in Google Maps ↗
+            </a>
           </div>
-        `;
-      });
-    }
+        ` : ''}
+      </div>
+    `;
+  });
+}
+
 
     function addExpense() {
       const dateDay = document.getElementById("exp-date").value.trim() || "General Expenses";
