@@ -926,12 +926,20 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
       </div>
 
 
+      
       <br>
       <button onclick="lockApp()" style="background-color: #f1f5f9; color: #ef4444;">Lock App</button>
+
+      <!-- BRAND SIGNATURE -->
+      <div style="text-align:center; padding:24px 0 12px; font-size:11px; color:var(--text-muted); letter-spacing:0.3px;">
+        Made by Scintilla Reverie
+      </div>
+
     </div>
   </div>
 
   <!-- FIREBASE SDK & APP LOGIC -->
+
   <script type="module">
     import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
