@@ -938,12 +938,13 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
     </div>
   </div>
 
-  <!-- FIREBASE SDK & APP LOGIC -->
+ <!-- FIREBASE SDK & APP LOGIC -->
 
   <script type="module">
     import { getAuth, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    // Notice how enableIndexedDbPersistence is added to the end of this next line:
+    import { getFirestore, doc, setDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     // YOUR ACTUAL FIREBASE CONFIG KEYS
     const firebaseConfig = {
@@ -957,6 +958,12 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // Enable offline storage right after "db" is created
+    enableIndexedDbPersistence(db).catch((err) => {
+      console.log("Offline mode didn't activate, but app will still work online.");
+    });
+
     const auth = getAuth(app);
     const VERIFY_ACCESS_URL = "https://japan-planner-auth.scintilla-reverie.workers.dev";
 
