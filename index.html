@@ -890,9 +890,41 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
             <input type="text" id="custom-item-input" placeholder="e.g. Camera battery, skincare..." style="margin:0;">
             <button onclick="addCustomPackingItem()" style="width:auto; padding:11px 16px; white-space:nowrap;">+ Add</button>
           </div>
+          
           <div id="custom-packing-list"></div>
         </div>
+
+        <!-- TRIP BACKUP & EXPORT -->
+        <div style="margin-top:24px; padding:16px; background:#F6F3ED; border:1px solid #E8E3DA; border-radius:12px;">
+          <h4 style="font-size:14px; color:var(--primary); margin:0 0 6px; font-weight:700;">
+            Trip Backup & Export
+          </h4>
+          <p style="font-size:12px; color:var(--text-muted); margin:0 0 14px;">
+            Keep a copy of your trip data or create a printable PDF for your journey.
+          </p>
+
+          <button onclick="downloadTripBackup()" style="width:100%; margin-bottom:8px;">
+            ↓ Download Trip Backup
+          </button>
+
+          <button onclick="document.getElementById('trip-backup-file').click()" style="width:100%; margin-bottom:8px;">
+            ↑ Restore from Backup
+          </button>
+
+          <button onclick="exportTripPDF()" style="width:100%;">
+            Export as PDF
+          </button>
+
+          <input
+            type="file"
+            id="trip-backup-file"
+            accept=".json,application/json"
+            style="display:none;"
+            onchange="restoreTripBackup(event)"
+          >
+        </div>
       </div>
+
 
       <br>
       <button onclick="lockApp()" style="background-color: #f1f5f9; color: #ef4444;">Lock App</button>
