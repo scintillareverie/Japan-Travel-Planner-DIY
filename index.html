@@ -1472,6 +1472,481 @@ window.downloadTripBackup = downloadTripBackup;
 window.restoreTripBackup = restoreTripBackup;
 
 
+// ==========================================
+// EXPORT TRIP AS PDF
+// ==========================================
+
+function exportTripPDF() {
+  if (!auth.currentUser || !enforceLocalExpiry()) return;
+
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    alert("Please allow pop-ups for Japan DIY Planner to export your PDF.");
+    return;
+  }
+
+  // Safely display customer-entered text in the PDF.
+  function escapePDFHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
+  function formatJPY(value) {
+    return "¥" + Number(value || 0).toLocaleString("en-US");
+  }
+
+  function packingItemHTML(item, id) {
+    const checked = packingChecks[id] === true;
+
+    return `
+      <div class="packing-item">
+        <span class="checkbox">${checked ? "☑" : "☐"}</span>
+        <span class="${checked ? "checked" : ""}">
+          ${escapePDFHTML(item)}
+        </span>
+      </div>
+    `;
+  }
+
+  function packingSectionHTML(title, items, getId) {
+    if (!Array.isArray(items) || items.length === 0) return "";
+
+    return `
+      <div class="packing-section">
+        <h3>${escapePDFHTML(title)}</h3>
+        ${items.map((item, idx) =>
+          packingItemHTML(item, getId(idx, item))
+        ).join("")}
+      </div>
+    `;
+  }
+
+  // --------------------------
+  // ITINERARY
+  // --------------------------
+
+  const itineraryHTML = userActivities.length
+    ? userActivities.map((act, idx) => {
+        const mapLink = act.mapLink && isValidBackupMapLink(act.mapLink)
+          ? `<a href="${escapePDFHTML(act.mapLink)}">Open Google Maps</a>`
+          : "";
+
+        return `
+          <div class="activity">
+            <div class="activity-number">${idx + 1}</div>
+            <div class="activity-content">
+              <div class="activity-meta">
+                ${escapePDFHTML(act.dateDay || "")}
+                ${act.dateDay && act.time ? " · " : ""}
+                ${escapePDFHTML(act.time || "")}
+              </div>
+              <div class="activity-title">
+                ${escapePDFHTML(act.title)}
+              </div>
+              ${act.desc ? `
+                <div class="activity-notes">
+                  ${escapePDFHTML(act.desc)}
+                </div>
+              ` : ""}
+              ${mapLink ? `
+                <div class="map-link">${mapLink}</div>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("")
+    : `<p class="empty">No itinerary activities added yet.</p>`;
+
+  // --------------------------
+  // EXPENSES
+  // --------------------------
+
+  const totalExpenses = userExpenses.reduce(
+    (total, expense) => total + Number(expense.price || 0),
+    0
+  );
+
+  const expensesHTML = userExpenses.length
+    ? `
+      <table>
+        <thead>
+          <tr>
+            <th>Date / Day</th>
+            <th>Expense</th>
+            <th>Category</th>
+            <th class="amount">Amount (JPY)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${userExpenses.map(exp => `
+            <tr>
+              <td>${escapePDFHTML(exp.dateDay || "")}</td>
+              <td>${escapePDFHTML(exp.name)}</td>
+              <td>${escapePDFHTML(exp.category)}</td>
+              <td class="amount">${formatJPY(exp.price)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `
+    : `<p class="empty">No expenses recorded yet.</p>`;
+
+  const budgetHTML = tripBudget > 0
+    ? `
+      <div class="budget-summary">
+        <div>
+          <span>Trip Budget</span>
+          <strong>${formatJPY(tripBudget)}</strong>
+        </div>
+        <div>
+          <span>Total Expenses</span>
+          <strong>${formatJPY(totalExpenses)}</strong>
+        </div>
+        <div>
+          <span>${totalExpenses <= tripBudget ? "Remaining Budget" : "Over Budget"}</span>
+          <strong>${formatJPY(Math.abs(tripBudget - totalExpenses))}</strong>
+        </div>
+      </div>
+    `
+    : `
+      <div class="budget-summary">
+        <div>
+          <span>Total Expenses</span>
+          <strong>${formatJPY(totalExpenses)}</strong>
+        </div>
+      </div>
+    `;
+
+  // --------------------------
+  // PACKING CHECKLIST
+  // --------------------------
+
+  const preDepartureHTML = packingSectionHTML(
+    "Before You Fly Checklist",
+    PRE_DEPARTURE_ITEMS,
+    idx => "predep_" + idx
+  );
+
+  const essentialsHTML = packingSectionHTML(
+    "Year-Round Essentials",
+    YEAR_ROUND_ITEMS,
+    idx => "essential_" + idx
+  );
+
+  const seasonalHTML =
+    currentSeason && SEASONAL_ITEMS[currentSeason]
+      ? packingSectionHTML(
+          currentSeason.charAt(0).toUpperCase() + currentSeason.slice(1) + " Items",
+          SEASONAL_ITEMS[currentSeason],
+          idx => currentSeason + "_" + idx
+        )
+      : "";
+
+  const personalItemsHTML = customPacking.length
+    ? packingSectionHTML(
+        "My Personal Items",
+        customPacking.map(item => item.text),
+        (idx) => customPacking[idx].id
+      )
+    : `
+      <div class="packing-section">
+        <h3>My Personal Items</h3>
+        <p class="empty">No personal items added yet.</p>
+      </div>
+    `;
+
+  // --------------------------
+  // COMPLETE PDF DOCUMENT
+  // --------------------------
+
+  const generatedDate = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Japan DIY Planner - Trip Summary</title>
+
+      <style>
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: Arial, sans-serif;
+          color: #252A32;
+          margin: 0;
+          padding: 32px;
+          font-size: 12px;
+          line-height: 1.6;
+        }
+
+        .header {
+          border-bottom: 2px solid #A7473F;
+          padding-bottom: 18px;
+          margin-bottom: 24px;
+        }
+
+        .brand {
+          font-size: 25px;
+          font-weight: 700;
+          letter-spacing: -0.7px;
+        }
+
+        .subtitle {
+          color: #777;
+          margin-top: 3px;
+        }
+
+        .generated {
+          color: #888;
+          font-size: 10px;
+          margin-top: 12px;
+        }
+
+        h2 {
+          font-size: 17px;
+          margin: 26px 0 12px;
+          padding-bottom: 7px;
+          border-bottom: 1px solid #E8E3DA;
+        }
+
+        h3 {
+          font-size: 13px;
+          margin: 16px 0 8px;
+        }
+
+        .trip-date {
+          background: #F6F3ED;
+          padding: 12px 14px;
+          border-radius: 7px;
+          margin-bottom: 20px;
+        }
+
+        .activity {
+          display: flex;
+          gap: 12px;
+          padding: 12px 0;
+          border-bottom: 1px solid #eee;
+          break-inside: avoid;
+        }
+
+        .activity-number {
+          width: 23px;
+          height: 23px;
+          min-width: 23px;
+          border-radius: 50%;
+          background: #A7473F;
+          color: white;
+          text-align: center;
+          line-height: 23px;
+          font-weight: bold;
+        }
+
+        .activity-content {
+          flex: 1;
+        }
+
+        .activity-meta {
+          font-size: 10px;
+          color: #888;
+        }
+
+        .activity-title {
+          font-size: 13px;
+          font-weight: bold;
+          margin-top: 2px;
+        }
+
+        .activity-notes {
+          color: #666;
+          margin-top: 3px;
+        }
+
+        .map-link {
+          margin-top: 5px;
+          font-size: 10px;
+        }
+
+        a {
+          color: #A7473F;
+          text-decoration: none;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+          font-size: 11px;
+        }
+
+        th {
+          background: #F6F3ED;
+          text-align: left;
+          padding: 9px 7px;
+        }
+
+        td {
+          padding: 9px 7px;
+          border-bottom: 1px solid #eee;
+        }
+
+        .amount {
+          text-align: right;
+          white-space: nowrap;
+        }
+
+        .budget-summary {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+          background: #F6F3ED;
+          padding: 14px;
+          border-radius: 7px;
+          margin-top: 14px;
+        }
+
+        .budget-summary div {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .budget-summary span {
+          font-size: 10px;
+          color: #777;
+        }
+
+        .budget-summary strong {
+          font-size: 14px;
+          margin-top: 4px;
+        }
+
+        .packing-section {
+          margin-bottom: 16px;
+          break-inside: avoid;
+        }
+
+        .packing-item {
+          display: flex;
+          gap: 9px;
+          padding: 4px 0;
+          break-inside: avoid;
+        }
+
+        .checkbox {
+          color: #A7473F;
+          font-size: 14px;
+        }
+
+        .checked {
+          color: #888;
+          text-decoration: line-through;
+        }
+
+        .empty {
+          color: #888;
+          font-style: italic;
+        }
+
+        .footer {
+          border-top: 1px solid #E8E3DA;
+          margin-top: 35px;
+          padding-top: 12px;
+          color: #999;
+          font-size: 10px;
+          text-align: center;
+        }
+
+        @page {
+          size: A4;
+          margin: 16mm;
+        }
+
+        @media print {
+          body {
+            padding: 0;
+          }
+
+          .no-print {
+            display: none !important;
+          }
+        }
+
+        .print-button {
+          background: #A7473F;
+          color: white;
+          border: 0;
+          padding: 11px 20px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 13px;
+          margin-bottom: 24px;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="no-print">
+        <button class="print-button" onclick="window.print()">
+          Print / Save as PDF
+        </button>
+      </div>
+
+      <div class="header">
+        <div class="brand">Japan DIY Planner</div>
+        <div class="subtitle">Your Japan Trip, Organized.</div>
+        <div class="generated">Trip summary generated on ${generatedDate}</div>
+      </div>
+
+      <div class="trip-date">
+        <strong>Trip Date:</strong>
+        ${escapePDFHTML(tripDate || "Not set")}
+      </div>
+
+      <h2>My Itinerary</h2>
+      ${itineraryHTML}
+
+      <h2>My Expenses</h2>
+      ${expensesHTML}
+      ${budgetHTML}
+
+      <h2>My Packing Checklist</h2>
+      ${preDepartureHTML}
+      ${essentialsHTML}
+      ${seasonalHTML}
+      ${personalItemsHTML}
+
+      <div class="footer">
+        Japan DIY Planner · Your personal Japan travel companion
+      </div>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+
+  printWindow.focus();
+}
+
+
+// Make the PDF function accessible to the HTML button.
+window.exportTripPDF = exportTripPDF;
+    
+
+
     
 async function saveToFirebase() {
   if (!auth.currentUser || !enforceLocalExpiry()) return false;
