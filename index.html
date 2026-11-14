@@ -1271,18 +1271,222 @@ function enforceLocalExpiry() {
   });
 }
 
-    async function saveToFirebase() {
+    
+// ==========================================
+// TRIP BACKUP & RESTORE
+// ==========================================
+
+function downloadTripBackup() {
   if (!auth.currentUser || !enforceLocalExpiry()) return;
+
+  const backup = {
+    app: "Japan DIY Planner",
+    format: "japan-diy-planner-backup",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    tripData: {
+      userActivities,
+      userExpenses,
+      packingChecks,
+      customPacking,
+      tripDate,
+      tripBudget
+    }
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(backup, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  const date = new Date().toISOString().slice(0, 10);
+
+  link.href = url;
+  link.download = `Japan-DIY-Planner-Backup-${date}.json`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+
+  alert("Your trip backup has been downloaded successfully!");
+}
+
+
+function isValidBackupMapLink(link) {
+  if (!link) return true;
+
+  try {
+    const url = new URL(link);
+
+    if (url.protocol !== "https:") return false;
+
+    if (url.hostname === "maps.app.goo.gl") return true;
+
+    return (
+      /(^|\.)google\.[a-z.]+$/i.test(url.hostname) &&
+      url.pathname.startsWith("/maps")
+    );
+
+  } catch (error) {
+    return false;
+  }
+}
+
+
+async function restoreTripBackup(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (!auth.currentUser || !enforceLocalExpiry()) {
+    event.target.value = "";
+    return;
+  }
+
+  try {
+    const fileText = await file.text();
+    const backup = JSON.parse(fileText);
+
+    if (
+      backup.format !== "japan-diy-planner-backup" ||
+      backup.version !== 1 ||
+      !backup.tripData
+    ) {
+      throw new Error("This is not a valid Japan DIY Planner backup file.");
+    }
+
+    const data = backup.tripData;
+
+    if (
+      !Array.isArray(data.userActivities) ||
+      !Array.isArray(data.userExpenses) ||
+      !Array.isArray(data.customPacking) ||
+      typeof data.packingChecks !== "object" ||
+      data.packingChecks === null ||
+      Array.isArray(data.packingChecks) ||
+      typeof data.tripDate !== "string" ||
+      typeof data.tripBudget !== "number" ||
+      !Number.isFinite(data.tripBudget) ||
+      data.tripBudget < 0
+    ) {
+      throw new Error("The backup file contains invalid trip data.");
+    }
+
+    const validActivities = data.userActivities.every(act =>
+      act &&
+      typeof act === "object" &&
+      typeof act.title === "string" &&
+      (act.dateDay === undefined || typeof act.dateDay === "string") &&
+      (act.time === undefined || typeof act.time === "string") &&
+      (act.desc === undefined || typeof act.desc === "string") &&
+      (act.mapLink === undefined || isValidBackupMapLink(act.mapLink))
+    );
+
+    const validExpenses = data.userExpenses.every(exp =>
+      exp &&
+      typeof exp === "object" &&
+      typeof exp.name === "string" &&
+      typeof exp.price === "number" &&
+      Number.isFinite(exp.price) &&
+      exp.price > 0 &&
+      typeof exp.category === "string" &&
+      typeof exp.dateDay === "string"
+    );
+
+    const validCustomPacking = data.customPacking.every(item =>
+      item &&
+      typeof item === "object" &&
+      typeof item.text === "string"
+    );
+
+    if (!validActivities || !validExpenses || !validCustomPacking) {
+      throw new Error("Some items in the backup file are invalid.");
+    }
+
+    const confirmed = confirm(
+      "Restoring this backup will replace your current trip data, including your itinerary, expenses, budget and packing progress.\n\nDo you want to continue?"
+    );
+
+    if (!confirmed) return;
+
+    // Keep the current data in case saving the backup fails.
+    const previousData = {
+      userActivities,
+      userExpenses,
+      packingChecks,
+      customPacking,
+      tripDate,
+      tripBudget
+    };
+
+    userActivities = data.userActivities;
+    userExpenses = data.userExpenses;
+    packingChecks = data.packingChecks;
+    customPacking = data.customPacking;
+    tripDate = data.tripDate;
+    tripBudget = data.tripBudget;
+
+    const saved = await saveToFirebase();
+
+    if (!saved) {
+      userActivities = previousData.userActivities;
+      userExpenses = previousData.userExpenses;
+      packingChecks = previousData.packingChecks;
+      customPacking = previousData.customPacking;
+      tripDate = previousData.tripDate;
+      tripBudget = previousData.tripBudget;
+
+      renderActivities();
+      renderExpenses();
+      renderPackingList();
+      renderCountdown();
+
+      alert("The backup could not be restored. Your previous trip data has been kept.");
+      return;
+    }
+
+    renderActivities();
+    renderExpenses();
+    renderPackingList();
+    renderCountdown();
+
+    alert("Your trip backup has been restored successfully!");
+
+  } catch (error) {
+    console.error("Backup restoration failed:", error);
+    alert(error.message || "Unable to restore this backup file.");
+
+  } finally {
+    event.target.value = "";
+  }
+}
+
+
+// Make functions accessible to the HTML buttons.
+window.downloadTripBackup = downloadTripBackup;
+window.restoreTripBackup = restoreTripBackup;
+
+
+    
+async function saveToFirebase() {
+  if (!auth.currentUser || !enforceLocalExpiry()) return false;
 
   try {
     await setDoc(getTripDocument(), {
-  userActivities,
-  userExpenses,
-  packingChecks,
-  customPacking,
-  tripDate,
-  tripBudget
-}, { merge: true });
+      userActivities,
+      userExpenses,
+      packingChecks,
+      customPacking,
+      tripDate,
+      tripBudget
+    }, { merge: true });
+
+    return true;
 
   } catch (err) {
     console.error("Failed to save to cloud:", err);
@@ -1290,8 +1494,11 @@ function enforceLocalExpiry() {
     if (err.code === "permission-denied") {
       lockApp("Access has expired or is no longer active.");
     }
+
+    return false;
   }
 }
+
 
     function renderCountdown() {
       const display = document.getElementById("countdown-display");
