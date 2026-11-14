@@ -629,6 +629,18 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
   border-radius: 20px !important;
   font-weight: 700 !important;
 }
+
+ <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>   
+    
   </style>
 </head>
 <body>
