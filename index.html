@@ -992,6 +992,7 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
     let currentSeason = null;
     let unsubscribeFirestore = null;
     let appVisible = false;
+    let hasLoadedData = false;
     let expiryTimer = null;
 
     const DAY_COLORS = [
@@ -1104,6 +1105,7 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
 
   } else {
     appVisible = false;
+    hasLoadedData = false;
 
     if (unsubscribeFirestore) {
       unsubscribeFirestore();
@@ -1281,6 +1283,7 @@ function enforceLocalExpiry() {
       tripBudget = 0;
     }
 
+    hasLoadedData = true;
     renderActivities();
     renderExpenses();
     renderPackingList();
@@ -1973,7 +1976,7 @@ window.exportTripPDF = exportTripPDF;
 
     
 async function saveToFirebase() {
-  if (!auth.currentUser || !enforceLocalExpiry()) return false;
+  if (!auth.currentUser || !enforceLocalExpiry() || !hasLoadedData) return false; 
 
   try {
     await setDoc(getTripDocument(), {
@@ -2514,6 +2517,7 @@ window.renderTripBudgetOverview = renderTripBudgetOverview;
   }
 
   appVisible = false;
+  hasLoadedData = false
   localStorage.removeItem("accessExpiresAt");
 
   if (message) {
