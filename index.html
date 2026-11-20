@@ -2081,48 +2081,72 @@ function addActivity() {
       saveToFirebase();
     }
 
+    function parseTimeToMinutes(timeStr) {
+      if (!timeStr) return 9999;
+      const match = timeStr.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+      if (!match) return 9999;
+      let hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2] || "0", 10);
+      const period = match[3] ? match[3].toLowerCase() : null;
+      if (period === "pm" && hours < 12) hours += 12;
+      if (period === "am" && hours === 12) hours = 0;
+      return hours * 60 + minutes;
+    }
+
+    function compareActivities(a, b) {
+      const dayA = (a.dateDay || "General").trim();
+      const dayB = (b.dateDay || "General").trim();
+      const dayCompare = dayA.localeCompare(dayB, undefined, { numeric: true, sensitivity: "base" });
+      if (dayCompare !== 0) return dayCompare;
+      return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
+    }
+
     function getDayColor(dayString) {
-      if (!dayString) return DAY_COLORS[0];
-      const uniqueDays = [...new Set(userActivities.map(a => a.dateDay || 'General'))];
-      const dayIndex = uniqueDays.indexOf(dayString || 'General');
+      const normalized = (dayString || "General").trim();
+      const uniqueDays = [...new Set(userActivities.map(a => (a.dateDay || "General").trim()))]
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+      const dayIndex = uniqueDays.indexOf(normalized);
       const colorIndex = (dayIndex >= 0 ? dayIndex : 0) % DAY_COLORS.length;
       return DAY_COLORS[colorIndex];
     }
 
-    
-function renderActivities() {
-  const list = document.getElementById("itinerary-list");
-  list.innerHTML = "";
+    function renderActivities() {
+      const list = document.getElementById("itinerary-list");
+      list.innerHTML = "";
 
-  if (userActivities.length === 0) {
-    list.innerHTML = "<p style='text-align:center;'>No activities added yet. Add your first item above!</p>";
-    return;
-  }
+      if (userActivities.length === 0) {
+        list.innerHTML = "<p style='text-align:center;'>No activities added yet. Add your first item above!</p>";
+        return;
+      }
 
-  userActivities.forEach((act, idx) => {
-    const color = getDayColor(act.dateDay);
-    const metaParts = [];
-    if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
-    metaParts.push(`⏰ ${act.time || 'Flexible'}`);
+      const sortedItems = userActivities
+        .map((act, idx) => ({ act, idx }))
+        .sort((a, b) => compareActivities(a.act, b.act));
 
-    list.innerHTML += `
-      <div class="activity-card" style="border-left-color: ${color.border};">
-        <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
-        <div class="activity-meta" style="color: ${color.text};">${metaParts.join(" &nbsp;|&nbsp; ")}</div>
-        <div class="activity-title">${act.title}</div>
-        ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
-        ${act.mapLink ? `
-          <div style="margin-top:8px;">
-            <a href="${act.mapLink}" target="_blank" rel="noopener noreferrer"
-               style="color:#A7473F; font-size:13px; font-weight:700; text-decoration:none;">
-              📍 Open in Google Maps ↗
-            </a>
+      sortedItems.forEach(({ act, idx }) => {
+        const color = getDayColor(act.dateDay);
+        const metaParts = [];
+        if (act.dateDay) metaParts.push(`📅 ${act.dateDay}`);
+        metaParts.push(`⏰ ${act.time || 'Flexible'}`);
+
+        list.innerHTML += `
+          <div class="activity-card" style="border-left-color: ${color.border};">
+            <button class="delete-btn" onclick="deleteActivity(${idx})">✕</button>
+            <div class="activity-meta" style="color: ${color.text};">${metaParts.join("  |  ")}</div>
+            <div class="activity-title">${act.title}</div>
+            ${act.desc ? `<div class="activity-desc">${act.desc}</div>` : ''}
+            ${act.mapLink ? `
+              <div style="margin-top:8px;">
+                <a href="${act.mapLink}" target="_blank" rel="noopener noreferrer"
+                   style="color:#A7473F; font-size:13px; font-weight:700; text-decoration:none;">
+                  📍 Open in Google Maps ↗
+                </a>
+              </div>
+            ` : ''}
           </div>
-        ` : ''}
-      </div>
-    `;
-  });
-}
+        `;
+      });
+    }
 
 
     function addExpense() {
