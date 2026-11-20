@@ -364,14 +364,14 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
 
 .activity-card {
   background: #FBFAF7 !important;
-  border-left: 3px solid var(--primary) !important;
+  border-left: 3px solid var(--primary);
   border-radius: 11px !important;
   box-shadow: none !important;
   padding: 13px 14px !important;
 }
 
 .activity-meta {
-  color: var(--primary) !important;
+  color: var(--primary);
 }
 
 .activity-title {
@@ -995,21 +995,18 @@ button:not(.nav-btn):not(.season-btn):not(.delete-btn):hover {
     let expiryTimer = null;
 
     const DAY_COLORS = [
-      { border: '#2563eb', text: '#2563eb' },
-      { border: '#ec4899', text: '#be185d' },
-      { border: '#8b5cf6', text: '#6d28d9' },
-      { border: '#10b981', text: '#047857' },
-      { border: '#f97316', text: '#c2410c' },
-      { border: '#14b8a6', text: '#0f766e' },
-      { border: '#f43f5e', text: '#be123c' },
-      { border: '#6366f1', text: '#4338ca' },
-      { border: '#d97706', text: '#b45309' },
-      { border: '#06b6d4', text: '#0e7490' },
-      { border: '#7c3aed', text: '#5b21b6' },
-      { border: '#65a30d', text: '#3f6212' },
-      { border: '#dc2626', text: '#991b1b' },
-      { border: '#0284c7', text: '#0369a1' },
-      { border: '#d946ef', text: '#a21caf' }
+      { border: '#A7473F', text: '#A7473F' }, // Day 1 & 13 — Terracotta Burgundy
+      { border: '#2F5D8C', text: '#2F5D8C' }, // Day 2 & 14 — Deep Slate Blue
+      { border: '#3D7A5A', text: '#3D7A5A' }, // Day 3 & 15 — Matcha Sage
+      { border: '#B5721C', text: '#B5721C' }, // Day 4 & 16 — Warm Ochre
+      { border: '#7B4B7A', text: '#7B4B7A' }, // Day 5 & 17 — Dusty Plum
+      { border: '#2A7B7B', text: '#2A7B7B' }, // Day 6 & 18 — Kyoto Teal
+      { border: '#B8536A', text: '#B8536A' }, // Day 7 & 19 — Rose Clay
+      { border: '#6B7A2F', text: '#6B7A2F' }, // Day 8 & 20 — Olive Moss
+      { border: '#46508F', text: '#46508F' }, // Day 9 & 21 — Indigo Ink
+      { border: '#C25932', text: '#C25932' }, // Day 10 & 22 — Burnt Sienna
+      { border: '#7D5A44', text: '#7D5A44' }, // Day 11 & 23 — Espresso Bronze
+      { border: '#2B7A9B', text: '#2B7A9B' }  // Day 12 & 24 — Lake Blue
     ];
 
     const PHRASE_DATA = {
